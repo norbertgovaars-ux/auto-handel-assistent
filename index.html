@@ -1,450 +1,331 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>Auto Handel Assistent Online</title>
+<meta name="description" content="Auto Handel Assistent met RDW, advertentieanalyse en biedbericht.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Auto Handel Assistent v3</title>
 <style>
-:root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b;--accent:#111827}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink)}
-.app{max-width:820px;margin:auto;padding:14px 14px 90px}.top{position:sticky;top:0;z-index:10;background:rgba(243,244,246,.96);backdrop-filter:blur(8px);padding:8px 0 10px}
-h1{font-size:25px;margin:0}.sub{color:var(--muted);font-size:14px;margin-top:4px}.card{background:var(--card);border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-h2{font-size:18px;margin:0 0 10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
-label{display:block;font-weight:700;font-size:13px;margin:8px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff}textarea{min-height:84px;resize:vertical}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px}.check input{width:auto}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#e5e7eb;color:#111827}.danger{background:#fee2e2;color:#991b1b}.good{background:#dcfce7;color:#166534}
-.result{font-size:34px;font-weight:800;color:var(--good);margin:4px 0}.row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.small{font-size:13px;color:var(--muted)}
-.badge{display:inline-block;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800}.green{background:#dcfce7;color:#166534}.orange{background:#ffedd5;color:#9a3412}.red{background:#fee2e2;color:#991b1b}
-.saved{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:9px}.saved h3{font-size:16px;margin:0 0 5px}.saved .meta{font-size:13px;color:var(--muted)}.saved .mini{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.saved button{margin-top:8px;width:100%}
-.empty{color:var(--muted);text-align:center;padding:16px}.footerbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px;display:flex;gap:8px;justify-content:center}.footerbar button{max-width:390px;flex:1}
-@media(max-width:600px){.grid,.checks,.actions{grid-template-columns:1fr}.full{grid-column:auto}.app{padding-left:10px;padding-right:10px}}
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font:16px Arial;color:var(--ink)}
+main{max-width:860px;margin:auto;padding:12px 12px 100px}.card{background:var(--card);border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 2px 10px #0000000f}
+h1{font-size:26px;margin:8px 0 2px} h2{font-size:19px;margin:0 0 10px} h3{font-size:15px;margin:12px 0 6px}
+.sub,.small{font-size:13px;color:var(--muted)} .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-weight:700;font-size:13px;margin:7px 0 5px} input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff}
+input[readonly]{background:#f9fafb} textarea{min-height:115px}.btn{width:100%;border:0;border-radius:12px;padding:13px;font-weight:700;font-size:16px;background:#111827;color:#fff;margin-top:10px}
+.btn.alt{background:#e5e7eb;color:#111827}.btn.good{background:#166534}.btn.warn{background:#92400e}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.result{font-size:34px;font-weight:800;color:var(--good)}.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:grid;grid-template-columns:auto 1fr 90px;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:9px}
+.check input[type=checkbox]{width:auto}.check input[type=number]{padding:7px;text-align:right}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:700;margin:3px 3px 3px 0}
+.pill.red{background:#fee2e2;color:#991b1b}.pill.green{background:#dcfce7;color:#166534}.pill.orange{background:#ffedd5;color:#92400e}
+.green{color:var(--good)}.red{color:var(--bad)}details summary{font-weight:800;cursor:pointer}.saved{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0}
+.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:9px}.footer button{max-width:860px;display:block;margin:auto}
+@media(max-width:650px){.grid,.checks,.actions{grid-template-columns:1fr}}
 </style>
-
-  <meta name="theme-color" content="#111827">
-  <meta name="description" content="Auto Handel Assistent met RDW-kentekencontrole en biedadvies.">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
-<div class="app">
-  <div class="top"><h1>Auto Handel Assistent Online</h1><div class="sub">Vul kenteken in, haal automatisch RDW op en ontvang direct een aankoopadvies.</div></div>
+<main>
+<h1>Auto Handel Assistent v3</h1>
+<div class="sub">Conservatieve snelle-verkoopwaarde, realistische herstelkosten, advertentieanalyse en bodbericht.</div>
 
-  <div class="card">
-    <h2>1. Kenteken</h2>
-    <label>Kenteken</label>
-    <input id="kenteken" placeholder="59-LFG-9" autocapitalize="characters">
-    <button class="btn primary" style="width:100%;margin-top:12px" onclick="haalRDW()">Zoek kenteken bij RDW</button>
-    <div id="rdwStatus" class="small" style="margin-top:10px">Vul een Nederlands kenteken in.</div>
-  </div>
+<section class="card">
+<h2>1. Kenteken</h2>
+<label>Kenteken</label>
+<input id="kenteken" placeholder="59-LFG-9" autocapitalize="characters">
+<button class="btn" onclick="haalRDW()">Zoek kenteken bij RDW</button>
+<div id="status" class="small" style="margin-top:9px">Vul een Nederlands kenteken in.</div>
+</section>
 
-  <div class="card">
-    <h2>2. Belangrijkste voertuiggegevens</h2>
-    <div class="grid">
-      <div><label>Merk</label><input id="merk" readonly></div>
-      <div><label>Model / uitvoering</label><input id="model" readonly></div>
-      <div><label>Bouwjaar</label><input id="jaar" readonly></div>
-      <div><label>Brandstof</label><input id="brandstof" readonly></div>
-      <div><label>Datum eerste toelating</label><input id="eersteToelating" readonly></div>
-      <div><label>APK geldig tot</label><input id="apk" readonly></div>
-      <div><label>Catalogusprijs nieuw (€)</label><input id="catalogusprijs" type="number" readonly></div>
-      <div><label>Carrosserie</label><input id="carrosserie" readonly></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>3. Vul alleen dit nog in</h2>
-    <div class="grid">
-      <div><label>Kilometerstand</label><input id="km" type="number" inputmode="numeric" placeholder="185000"></div>
-      <div><label>Vraagprijs particulier (€)</label><input id="vraagprijs" type="number" inputmode="decimal" placeholder="2500"></div>
-      <div><label>Verwachte verkoopprijs (€)</label><input id="verkoop" type="number" inputmode="decimal" placeholder="Wordt automatisch berekend"></div>
-      <div><label>Handmatige marktcorrectie (%)</label><input id="marktcorrectie" type="number" inputmode="decimal" value="0"></div>
-    </div>
-  </div>
-
-  <details class="card">
-    <summary style="font-weight:800;font-size:18px;cursor:pointer">Alle RDW-details bekijken</summary>
-    <div class="grid" style="margin-top:14px">
-      <div><label>Motorinhoud (cc)</label><input id="cilinderinhoud" readonly></div>
-      <div><label>Vermogen (kW / pk)</label><input id="vermogen" readonly></div>
-      <div><label>Aantal cilinders</label><input id="cilinders" readonly></div>
-      <div><label>Massa rijklaar (kg)</label><input id="massa" readonly></div>
-      <div><label>Deuren / zitplaatsen</label><input id="deurenZitplaatsen" readonly></div>
-      <div><label>Kleur(en)</label><input id="kleuren" readonly></div>
-      <div><label>Trekgewicht geremd (kg)</label><input id="trekgewicht" readonly></div>
-      <div><label>Maximum snelheid (km/u)</label><input id="maximumSnelheid" readonly></div>
-      <div><label>Tellerstandoordeel RDW</label><input id="tellerOordeel" readonly></div>
-      <div><label>Openstaande terugroepactie</label><input id="terugroepactie" readonly></div>
-      <div><label>WAM verzekerd</label><input id="wam" readonly></div>
-      <div><label>Datum tenaamstelling</label><input id="tenaamstelling" readonly></div>
-      <div><label>Eerste toelating Nederland</label><input id="eersteNL" readonly></div>
-      <div class="full"><label>Emissie- en brandstofdetails</label><textarea id="brandstofDetails" readonly></textarea></div>
-    </div>
-  </details>
-
-  <div class="card">
-    <h2>Automatische richtprijs particulier</h2>
-    <div class="small">Indicatieve marktwaarde</div>
-    <div class="result" id="marktwaarde">€ 0</div>
-    <div class="row"><span>Richtprijs aankoop particulier</span><strong id="particulierRichtprijs">€ 0</strong></div>
-    <div class="row"><span>Ondergrens / scherp bod</span><strong id="scherpBod">€ 0</strong></div>
-    <div class="row"><span>Betrouwbaarheid berekening</span><strong id="prijsZekerheid">Nog niet berekend</strong></div>
-    <p id="prijsUitleg" class="small"></p>
-  </div>
-
-  <div class="card">
-    <h2>2. Kosten en winstdoel</h2>
-    <div class="grid">
-      <div><label>Gewenste nettowinst (€)</label><input id="marge" type="number" value="750"></div>
-      <div><label>Reparaties / onderhoud (€)</label><input id="reparatie" type="number" value="300"></div>
-      <div><label>Poetsen / advertentie (€)</label><input id="verkoopkosten" type="number" value="100"></div>
-      <div><label>Risicobuffer (€)</label><input id="buffer" type="number" value="250"></div>
-      <div><label>Overige kosten (€)</label><input id="overig" type="number" value="100"></div>
-      <div><label>Gewenst openingsbod (%)</label><input id="openingskorting" type="number" value="12"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>3. Aftrekpunten</h2>
-    <div class="checks">
-      <label class="check"><input type="checkbox" data-deduct="200"> Airco defect</label>
-      <label class="check"><input type="checkbox" data-deduct="150"> Geen cruise control</label>
-      <label class="check"><input type="checkbox" data-deduct="200"> Geen trekhaak</label>
-      <label class="check"><input type="checkbox" data-deduct="150"> Geen parkeersensoren</label>
-      <label class="check"><input type="checkbox" data-deduct="200"> Stoelslijtage</label>
-      <label class="check"><input type="checkbox" data-deduct="300"> Voorruitschade</label>
-      <label class="check"><input type="checkbox" data-deduct="250"> Slechte banden</label>
-      <label class="check"><input type="checkbox" data-deduct="200"> Oude accu</label>
-      <label class="check"><input type="checkbox" data-deduct="250"> Deuken / hagelschade</label>
-      <label class="check"><input type="checkbox" data-deduct="300"> Geen onderhoudshistorie</label>
-      <label class="check"><input type="checkbox" data-deduct="350"> Koppeling verdacht</label>
-      <label class="check"><input type="checkbox" data-deduct="400"> Distributie onbekend</label>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>4. Pluspunten</h2>
-    <div class="checks">
-      <label class="check"><input type="checkbox" data-add="250"> Automaat</label>
-      <label class="check"><input type="checkbox" data-add="200"> 1.6 motor</label>
-      <label class="check"><input type="checkbox" data-add="150"> Trekhaak</label>
-      <label class="check"><input type="checkbox" data-add="150"> Parkeersensoren</label>
-      <label class="check"><input type="checkbox" data-add="200"> Extra set banden</label>
-      <label class="check"><input type="checkbox" data-add="200"> Nieuwe APK</label>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>5. Biedadvies</h2>
-    <div class="small">Maximaal verantwoord bod</div>
-    <div class="result" id="maxBod">€ 0</div>
-    <div id="risico"></div>
-    <div id="details"></div>
-    <div class="row"><span>Advies openingsbod</span><strong id="openingsbod">€ 0</strong></div>
-    <div class="row"><span>Verwachte winst bij vraagprijs</span><strong id="winstVraag">€ 0</strong></div>
-    <p id="advies" style="font-weight:700"></p>
-  </div>
-
-  <div class="card">
-    <h2>6. Notities</h2>
-    <textarea id="notities" placeholder="Bijvoorbeeld: eigenaar wil snel verkopen, koppeling zwaar, distributieriem onbekend..."></textarea>
-    <div class="actions" style="margin-top:10px">
-      <button class="btn good" onclick="bewaarAuto()">Auto opslaan</button>
-      <button class="btn secondary" onclick="nieuwFormulier()">Nieuwe auto</button>
-    </div>
-    <div id="saveMsg" class="small" style="margin-top:8px"></div>
-  </div>
-
-  <div class="card">
-    <h2>Opgeslagen auto's</h2>
-    <div id="opgeslagen"></div>
-  </div>
+<section class="card">
+<h2>2. Voertuig en uitgangspunt</h2>
+<div class="grid">
+<div><label>Merk</label><input id="merk" readonly></div>
+<div><label>Model</label><input id="model" readonly></div>
+<div><label>Carrosserie</label><input id="body" readonly></div>
+<div><label>Variant / uitvoering</label><input id="variant" readonly></div>
+<div><label>Aantal deuren</label><input id="deuren" readonly></div>
+<div><label>Aantal zitplaatsen</label><input id="zitplaatsen" readonly></div>
+<div><label>Bouwjaar</label><input id="jaar" readonly></div>
+<div><label>Brandstof</label><input id="brandstof" readonly></div>
+<div><label>APK geldig tot</label><input id="apk" readonly></div>
+<div><label>Resterende APK</label><input id="apkrest" readonly></div>
+<div><label>Catalogusprijs (€)</label><input id="catalogus" type="number" readonly></div>
+<div><label>Kilometerstand</label><input id="km" type="number" inputmode="numeric" placeholder="185000"></div>
+<div><label>Vraagprijs particulier (€)</label><input id="vraag" type="number" inputmode="numeric"></div>
+<div><label>Handmatige marktcorrectie (%)</label><input id="marktcorrectie" type="number" value="0"></div>
 </div>
+<div class="small" style="margin-top:10px">De referentiewaarde gaat uit van een nette, storingsvrije auto met circa 12 maanden APK die scherp genoeg geprijsd is om ongeveer binnen twee weken te verkopen. Dit blijft een conservatieve indicatie, geen garantie.</div>
+</section>
 
-<div class="footerbar">
-  <button class="btn primary" onclick="bereken()">Bereken opnieuw</button>
+<details class="card">
+<summary>Technische RDW-details</summary>
+<div class="grid" style="margin-top:10px">
+<div><label>Motorinhoud</label><input id="cc" readonly></div>
+<div><label>Vermogen</label><input id="vermogen" readonly></div>
+<div><label>Cilinders</label><input id="cilinders" readonly></div>
+<div><label>Massa rijklaar</label><input id="massa" readonly></div>
+<div><label>Kleur</label><input id="kleur" readonly></div>
+<div><label>Trekgewicht geremd</label><input id="trek" readonly></div>
+<div><label>Tellerstandoordeel</label><input id="teller" readonly></div>
+<div><label>Terugroepactie</label><input id="recall" readonly></div>
 </div>
+</details>
+
+<section class="card">
+<h2>3. Advertentietekst analyseren</h2>
+<textarea id="advertentie" placeholder="Plak hier de volledige tekst van Marktplaats, AutoScout24 of een andere advertentie..."></textarea>
+<div class="actions">
+<button class="btn" onclick="analyseerAdvertentie()">Analyseer advertentie</button>
+<button class="btn alt" onclick="wisAnalyse()">Wis analyse</button>
+</div>
+<div id="analyseResultaat" class="small" style="margin-top:10px">Nog geen advertentie geanalyseerd.</div>
+</section>
+
+<section class="card">
+<h2>4. Gewenste winst en vaste kosten</h2>
+<div class="grid">
+<div><label>Gewenste winst (€)</label><input id="marge" type="number" value="500"></div>
+<div><label>Poetsen / advertentie (€)</label><input id="verkoopkosten" type="number" value="125"></div>
+<div><label>Algemene risicobuffer (€)</label><input id="buffer" type="number" value="200"></div>
+<div><label>Overige kosten (€)</label><input id="overig" type="number" value="75"></div>
+<div><label>Openingsbod onder maximum (%)</label><input id="korting" type="number" value="10"></div>
+<div><label>Snelle-verkoopkorting (%)</label><input id="snelkorting" type="number" value="7"></div>
+</div>
+<div class="small" style="margin-top:8px">Standaard: €500 winst bij verkoopwaarden tot €2.500. Bij hogere verkoopwaarden verhoogt de app het winstdoel automatisch, tenzij je het handmatig wijzigt.</div>
+</section>
+
+<section class="card">
+<h2>5. Herstel- en gereedmaakkosten</h2>
+<div class="small">Vink alleen aan wat echt nodig of onzeker is. Ieder bedrag is aanpasbaar. De bedragen zijn voor betaalbare gebruikte auto's en algemene garages; merk, motor en regio kunnen sterk afwijken.</div>
+<div class="checks" id="deducts"></div>
+<div id="deductList"></div>
+</section>
+
+<section class="card">
+<h2>6. Biedadvies</h2>
+<div class="small">Maximale aankoopprijs</div>
+<div id="maxbod" class="result">€ 0</div>
+<div class="row"><span>Referentiewaarde nette auto</span><strong id="referentie">€ 0</strong></div>
+<div class="row"><span>Conservatieve verkoopwaarde binnen ±2 weken</span><strong id="snelwaarde">€ 0</strong></div>
+<div class="row"><span>Totale herstel- en gereedmaakkosten</span><strong id="totaalkosten">€ 0</strong></div>
+<div class="row"><span>Gewenste winst</span><strong id="doelwinst">€ 0</strong></div>
+<div class="row"><span>Advies openingsbod</span><strong id="opening">€ 0</strong></div>
+<div id="calc"></div>
+<p id="advies"><b>Vul eerst kenteken en kilometerstand in.</b></p>
+</section>
+
+<section class="card">
+<h2>7. Onderbouwd bodbericht</h2>
+<div class="grid">
+<div><label>Stijl</label><select id="stijl"><option value="vriendelijk">Vriendelijk</option><option value="direct">Direct en zakelijk</option><option value="snel">Snelle deal</option><option value="laatste">Definitief laatste bod</option></select></div>
+<div><label>Te gebruiken bod (€)</label><input id="berichtbod" type="number"></div>
+</div>
+<button class="btn" onclick="maakBericht()">Genereer bodbericht</button>
+<textarea id="bodbericht" placeholder="Hier verschijnt het bericht..."></textarea>
+<div class="actions">
+<button class="btn good" onclick="kopieerBericht()">Kopieer tekst</button>
+<button class="btn" onclick="openWhatsApp()">Open WhatsApp</button>
+</div>
+<div id="copyStatus" class="small"></div>
+</section>
+
+<section class="card">
+<h2>8. Vragen voor de verkoper</h2>
+<button class="btn alt" onclick="maakVragen()">Genereer ontbrekende vragen</button>
+<textarea id="vragen" placeholder="Hier verschijnen vragen over onderhoud, APK, airco, distributie, schade en storingen..."></textarea>
+</section>
+
+<section class="card">
+<h2>9. Notities en bewaren</h2>
+<textarea id="notities" placeholder="Proefrit, eigenaar, onderhoud, schade, onderhandelingen..."></textarea>
+<button class="btn" onclick="bewaar()">Auto opslaan</button>
+<div id="saved"></div>
+</section>
+</main>
+
+<div class="footer"><button class="btn" onclick="bereken()">Bereken opnieuw</button></div>
 
 <script>
-const ids=['kenteken','merk','model','jaar','eersteToelating','brandstof','carrosserie','catalogusprijs','apk','km','cilinderinhoud','vermogen','cilinders','massa','deurenZitplaatsen','kleuren','trekgewicht','maximumSnelheid','tellerOordeel','terugroepactie','wam','tenaamstelling','eersteNL','brandstofDetails','vraagprijs','verkoop','marktcorrectie','marge','reparatie','verkoopkosten','buffer','overig','openingskorting','notities'];
-const euro=n=>new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)||0);
-const val=id=>Number(document.getElementById(id).value)||0;
-
-
-function schoonKenteken(k){return (k||'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
-function rdwDatum(v){
-  if(!v) return '';
-  const s=String(v).replace(/\D/g,'');
-  if(s.length!==8) return v;
-  return s.slice(6,8)+'-'+s.slice(4,6)+'-'+s.slice(0,4);
+const $=id=>document.getElementById(id);
+const num=id=>Number($(id).value)||0;
+const euro=n=>new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
+const costs=[
+['Nieuwe APK-keuring',65,'Keuring zonder reparaties'],
+['APK-risicoreserve',200,'Onbekende gebreken bij korte of verlopen APK'],
+['Kleine beurt',220,'Olie en basisfilters'],
+['Grote beurt',400,'Uitgebreider onderhoud'],
+['2 banden vervangen',260,'Middenklasse banden inclusief montage'],
+['4 banden vervangen',520,'Middenklasse banden inclusief montage'],
+['Remmen voor',350,'Schijven en blokken, indicatie'],
+['Remmen achter',300,'Afhankelijk van trommels of schijven'],
+['Accu vervangen',150,'Gangbare startaccu'],
+['Airco service / vullen',140,'Alleen als systeem verder dicht is'],
+['Airco reparatie',550,'Bij lekkage, compressor of condensor kan dit hoger zijn'],
+['Koppeling verdacht / vervangen',750,'Sterk afhankelijk van auto en vliegwiel'],
+['Distributieriem onbekend',650,'Riem, spanrollen en vaak waterpomp'],
+['Distributieketting verdacht',900,'Sterk modelafhankelijk'],
+['Stuurhuis / stuurkolom verdacht',650,'Bij Kia Ceed extra aandachtspunt'],
+['Voorruit vervangen',450,'Zonder bijzondere camera-calibratie'],
+['Deuken / hagelschade',350,'Kleine cosmetische correctie'],
+['Lakschade herstellen',450,'Lokaal herstel of spuitwerk'],
+['Interieur grondig reinigen',150,'Detailing / geur / vlekken'],
+['Geen onderhoudshistorie',300,'Risico-opslag, geen directe reparatie'],
+['Motorstoringslampje / storing',750,'Diagnose en reparatierisico'],
+['Roetfilter / EGR risico diesel',700,'Indicatieve risicopost'],
+['Automaat / versnellingsbak verdacht',1000,'Risicopost; kan veel hoger uitvallen']
+];
+function makeDeducts(){
+ $('deducts').innerHTML=costs.map(([n,v,note],i)=>`<label class="check" id="d${i}"><input type="checkbox"><span><b>${n}</b><br><small>${note}</small></span><input type="number" value="${v}" inputmode="numeric"></label>`).join('');
+ document.querySelectorAll('#deducts input').forEach(x=>x.addEventListener('input',bereken));
 }
-function leeftijdUitDatum(){
-  const raw=(document.getElementById('eersteToelating').value||'').replace(/\D/g,'');
-  if(raw.length===8){
-    const d=parseInt(raw.slice(0,2)),m=parseInt(raw.slice(2,4)),y=parseInt(raw.slice(4,8));
-    const first=new Date(y,m-1,d), now=new Date();
-    return Math.max(0,(now-first)/(365.25*24*3600*1000));
-  }
-  const y=val('jaar');
-  return y?Math.max(0,new Date().getFullYear()-y):0;
+makeDeducts();
+function clean(k){return(k||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function dateNL(v){let s=String(v||'').replace(/\D/g,'');return s.length===8?`${s.slice(6)}-${s.slice(4,6)}-${s.slice(0,4)}`:''}
+function apkDays(v){let s=String(v||'').replace(/\D/g,'');if(s.length!==8)return null;return Math.ceil((new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6))-new Date())/86400000)}
+function apkRest(v){let d=apkDays(v);if(d===null)return'Onbekend';if(d<0)return`Verlopen (${Math.abs(d)} dagen)`;let m=Math.floor(d/30.44);return m?`${m} maanden (${d} dagen)`:`${d} dagen`}
+function bodyType(v){
+ let t=((v.inrichting||'')+' '+(v.handelsbenaming||'')).toLowerCase(),d=+v.aantal_deuren||0,b=v.inrichting||v.voertuigsoort||'Onbekend';
+ if(/station|wagon|estate|break|tourer|\bsw\b/.test(t))b='Stationwagen';
+ else if(/sedan|limousine/.test(t))b='Sedan';
+ else if(/cabrio|roadster/.test(t))b='Cabriolet';
+ else if(/coup/.test(t))b='Coupé';
+ else if(/mpv|minivan/.test(t))b='MPV';
+ else if(/suv|terrein/.test(t))b='SUV';
+ else if(d===3||d===5)b='Hatchback';
+ return b;
 }
-
-function wisVoertuiggegevens(){
-  const velden=['merk','model','jaar','eersteToelating','brandstof','carrosserie','catalogusprijs','apk',
-  'cilinderinhoud','vermogen','cilinders','massa','deurenZitplaatsen','kleuren','trekgewicht',
-  'maximumSnelheid','tellerOordeel','terugroepactie','wam','tenaamstelling','eersteNL','brandstofDetails'];
-  velden.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.value='';
-  });
-  document.getElementById('verkoop').value='';
-  document.getElementById('marktwaarde').textContent=euro(0);
-  document.getElementById('particulierRichtprijs').textContent=euro(0);
-  document.getElementById('scherpBod').textContent=euro(0);
-  document.getElementById('prijsZekerheid').textContent='Nog niet berekend';
-  document.getElementById('prijsUitleg').textContent='Haal eerst de RDW-gegevens op en vul daarna de kilometerstand in.';
-}
-
-
 async function haalRDW(){
-  const kenteken=schoonKenteken(document.getElementById('kenteken').value);
-  const status=document.getElementById('rdwStatus');
-  if(kenteken.length<6){
-    status.textContent='Kenteken is te kort.';
-    status.style.color='#991b1b';
-    return;
-  }
-  wisVoertuiggegevens();
-  status.textContent='Contact maken met RDW…';
-  status.style.color='#6b7280';
-
-  const base='https://opendata.rdw.nl/resource/';
-  const query='?%24limit=20&kenteken='+encodeURIComponent(kenteken);
-
-  try{
-    const [voertuigRes,brandstofRes] = await Promise.all([
-      fetch(base+'m9d7-ebf2.json'+query, {cache:'no-store'}),
-      fetch(base+'8ys7-d773.json'+query+'&%24order=brandstof_volgnummer', {cache:'no-store'}).catch(()=>null)
-    ]);
-
-    if(!voertuigRes.ok) throw new Error('RDW voertuigregister niet bereikbaar');
-    const voertuigen=await voertuigRes.json();
-    if(!Array.isArray(voertuigen) || !voertuigen.length) throw new Error('Kenteken niet gevonden');
-
-    const v=voertuigen[0];
-    let brandstoffen=[];
-    if(brandstofRes && brandstofRes.ok){
-      const data=await brandstofRes.json();
-      if(Array.isArray(data)) brandstoffen=data;
-    }
-
-    const set=(id,value)=>{
-      const el=document.getElementById(id);
-      if(el) el.value=(value===undefined||value===null)?'':value;
-    };
-    const jaNee=(value)=>{
-      const s=String(value??'').trim().toLowerCase();
-      if(['ja','yes','true','1'].includes(s)) return 'Ja';
-      if(['nee','no','false','0'].includes(s)) return 'Nee';
-      return value||'Onbekend';
-    };
-    const pkVanKw=(kw)=>{
-      const n=Number(kw);
-      return n?Math.round(n*1.35962):'';
-    };
-
-    // Combineer ALLE geregistreerde brandstoffen, niet alleen de eerste rij.
-    let brandstofNamen=[...new Set(
-      brandstoffen.map(x=>x.brandstof_omschrijving).filter(Boolean)
-    )];
-
-    // Veilige fallback wanneer het aparte brandstofregister tijdelijk leeg terugkomt.
-    if(!brandstofNamen.length){
-      const naam=((v.handelsbenaming||'')+' '+(v.type||'')+' '+(v.uitvoering||'')).toUpperCase();
-      if(/(D|TDI|CDI|CRDI|DIESEL|HDI|DCI|JTD|TDCI|D-4D)/.test(naam)) brandstofNamen=['Diesel (afgeleid uit uitvoering; controleer RDW)'];
-      else if(/(EV|ELECTRIC|ELEKTRISCH)/.test(naam)) brandstofNamen=['Elektriciteit (afgeleid uit uitvoering; controleer RDW)'];
-      else brandstofNamen=['Niet ontvangen uit RDW-brandstofregister'];
-    }
-
-    const vermogenKw = brandstoffen.map(x=>Number(x.nettomaximumvermogen||x.nominaal_continu_maximumvermogen)).find(n=>n>0)
-                      || Number(v.vermogen_massarijklaar||0);
-    const vermogenTekst = vermogenKw ? `${vermogenKw} kW / ${pkVanKw(vermogenKw)} pk` : '';
-
-    const details = brandstoffen.map((b,i)=>{
-      const regels=[
-        `${i+1}. ${b.brandstof_omschrijving||'Onbekende brandstof'}`,
-        b.emissiecode_omschrijving ? `Emissieklasse: ${b.emissiecode_omschrijving}` : '',
-        b.co2_uitstoot_gecombineerd ? `CO₂ gecombineerd: ${b.co2_uitstoot_gecombineerd} g/km` : '',
-        b.brandstofverbruik_gecombineerd ? `Verbruik gecombineerd: ${b.brandstofverbruik_gecombineerd} l/100 km` : '',
-        b.nettomaximumvermogen ? `Motorvermogen: ${b.nettomaximumvermogen} kW (${pkVanKw(b.nettomaximumvermogen)} pk)` : '',
-        b.nominaal_continu_maximumvermogen ? `Elektromotor continu: ${b.nominaal_continu_maximumvermogen} kW` : '',
-        b.roetuitstoot ? `Roetuitstoot: ${b.roetuitstoot}` : ''
-      ].filter(Boolean);
-      return regels.join(' · ');
-    }).join('\n');
-
-    set('kenteken',kenteken);
-    set('merk',v.merk||'');
-    set('model',[v.handelsbenaming,v.variant,v.uitvoering].filter(Boolean).join(' '));
-    set('eersteToelating',rdwDatum(v.datum_eerste_toelating));
-    set('jaar',String(v.datum_eerste_toelating||'').slice(0,4));
-    set('brandstof',brandstofNamen.join(' / '));
-    set('carrosserie',v.inrichting||v.voertuigsoort||'');
-    set('catalogusprijs',v.catalogusprijs||'');
-    set('apk',rdwDatum(v.vervaldatum_apk));
-    set('cilinderinhoud',v.cilinderinhoud||'');
-    set('vermogen',vermogenTekst);
-    set('cilinders',v.aantal_cilinders||'');
-    set('massa',v.massa_rijklaar||v.massa_ledig_voertuig||'');
-    set('deurenZitplaatsen',[v.aantal_deuren ? v.aantal_deuren+' deuren':'',v.aantal_zitplaatsen ? v.aantal_zitplaatsen+' zitplaatsen':''].filter(Boolean).join(' / '));
-    set('kleuren',[v.eerste_kleur,v.tweede_kleur].filter(x=>x&&x!=='Niet geregistreerd').join(' / '));
-    set('trekgewicht',v.maximum_trekken_massa_geremd||v.maximum_massa_trekken_geremd||'');
-    set('maximumSnelheid',v.maximum_snelheid||'');
-    set('tellerOordeel',[v.tellerstandoordeel,v.code_toelichting_tellerstandoordeel].filter(Boolean).join(' – '));
-    set('terugroepactie',jaNee(v.openstaande_terugroepactie_indicator));
-    set('wam',jaNee(v.wam_verzekerd));
-    set('tenaamstelling',rdwDatum(v.datum_tenaamstelling));
-    set('eersteNL',rdwDatum(v.datum_eerste_tenaamstelling_in_nederland));
-    set('brandstofDetails',details||'Geen aanvullende emissiegegevens ontvangen.');
-
-    const bronMelding = brandstoffen.length
-      ? `RDW gevonden: ${v.merk||''} ${v.handelsbenaming||''} – brandstof: ${brandstofNamen.join(' / ')}. Vul nu de kilometerstand in.`
-      : `Voertuig gevonden, maar het aparte RDW-brandstofregister gaf geen regel terug. De brandstofmelding is daarom een waarschuwing en moet worden gecontroleerd.`;
-    status.textContent=bronMelding;
-    status.style.color=brandstoffen.length?'#166534':'#9a6700';
-    bereken();
-    setTimeout(()=>document.getElementById('km').focus(),150);
-  }catch(e){
-    status.textContent='Niet gelukt: '+e.message+'. Controleer internet en kenteken.';
-    status.style.color='#991b1b';
-  }
+ let k=clean($('kenteken').value); if(k.length<6){$('status').textContent='Kenteken is te kort.';return}
+ $('status').textContent='RDW wordt opgehaald…';
+ try{
+  let q='?%24limit=20&kenteken='+encodeURIComponent(k),base='https://opendata.rdw.nl/resource/';
+  let [a,b]=await Promise.all([fetch(base+'m9d7-ebf2.json'+q),fetch(base+'8ys7-d773.json'+q).catch(()=>null)]);
+  if(!a.ok)throw Error('RDW niet bereikbaar');
+  let vs=await a.json(); if(!vs.length)throw Error('Kenteken niet gevonden');
+  let v=vs[0],fs=b&&b.ok?await b.json():[];
+  $('kenteken').value=k;$('merk').value=v.merk||'';$('model').value=v.handelsbenaming||'';
+  $('variant').value=[v.variant,v.uitvoering].filter(Boolean).join(' / ');
+  $('body').value=bodyType(v);$('deuren').value=v.aantal_deuren||'Onbekend';$('zitplaatsen').value=v.aantal_zitplaatsen||'Onbekend';
+  $('jaar').value=String(v.datum_eerste_toelating||'').slice(0,4);
+  $('brandstof').value=[...new Set(fs.map(x=>x.brandstof_omschrijving).filter(Boolean))].join(' / ')||'Onbekend';
+  $('apk').value=dateNL(v.vervaldatum_apk);$('apkrest').value=apkRest(v.vervaldatum_apk);$('catalogus').value=v.catalogusprijs||'';
+  $('cc').value=v.cilinderinhoud?`${v.cilinderinhoud} cc`:'';let kw=fs.map(x=>+x.nettomaximumvermogen).find(Boolean);
+  $('vermogen').value=kw?`${kw} kW / ${Math.round(kw*1.3596)} pk`:'';$('cilinders').value=v.aantal_cilinders||'';
+  $('massa').value=v.massa_rijklaar?`${v.massa_rijklaar} kg`:'';$('kleur').value=[v.eerste_kleur,v.tweede_kleur].filter(x=>x&&x!=='Niet geregistreerd').join(' / ');
+  $('trek').value=v.maximum_trekken_massa_geremd?`${v.maximum_trekken_massa_geremd} kg`:'';$('teller').value=v.tellerstandoordeel||'';$('recall').value=v.openstaande_terugroepactie_indicator||'';
+  autoApkKosten(v.vervaldatum_apk);
+  $('status').textContent=`Gevonden: ${v.merk||''} ${v.handelsbenaming||''}. Vul kilometerstand, vraagprijs en eventueel de advertentietekst in.`;
+  bereken();
+ }catch(e){$('status').textContent='Niet gelukt: '+e.message}
 }
-function restwaardeFactor(leeftijd){
-  const tabel=[1,0.78,0.65,0.55,0.47,0.40,0.34,0.30,0.26,0.23,0.20];
-  if(leeftijd<=10){
-    const laag=Math.floor(leeftijd), hoog=Math.min(10,Math.ceil(leeftijd));
-    const frac=leeftijd-laag;
-    return tabel[laag]+(tabel[hoog]-tabel[laag])*frac;
-  }
-  return Math.max(0.035,0.20*Math.pow(0.92,leeftijd-10));
+function setCost(name,checked,value){
+ let rows=[...document.querySelectorAll('#deducts .check')],r=rows.find(x=>x.querySelector('b').textContent===name);
+ if(r){r.querySelector('[type=checkbox]').checked=checked;if(value!==undefined)r.querySelector('[type=number]').value=value}
 }
-function automatischePrijs(){
-  const cat=val('catalogusprijs'), km=val('km'), leeftijd=leeftijdUitDatum();
-  const merk=(document.getElementById('merk').value||'').toUpperCase();
-  const model=(document.getElementById('model').value||'').toUpperCase();
-  const fuel=(document.getElementById('brandstof').value||'').toUpperCase();
-  let zekerheid='Laag', uitleg=[], basisNieuw=cat;
-  if(!basisNieuw){
-    basisNieuw=22000;
-    if(/BMW|MERCEDES|AUDI|LEXUS|VOLVO/.test(merk)) basisNieuw=38000;
-    if(/AYGO|C1|107|108|UP|MII|CITIGO|PICANTO|I10/.test(model)) basisNieuw=15000;
-    if(/SUV|SPORTAGE|TUCSON|QASHQAI|TIGUAN|KUGA|RAV4/.test(model)) basisNieuw=32000;
-    uitleg.push('Catalogusprijs ontbreekt; standaard nieuwprijs geschat.');
-  }else zekerheid='Gemiddeld';
-  if(!leeftijd||!km){
-    document.getElementById('marktwaarde').textContent=euro(0);
-    document.getElementById('particulierRichtprijs').textContent=euro(0);
-    document.getElementById('scherpBod').textContent=euro(0);
-    document.getElementById('prijsZekerheid').textContent='Vul bouwjaar en kilometerstand in';
-    document.getElementById('prijsUitleg').textContent='De automatische prijs verschijnt zodra leeftijd en kilometerstand bekend zijn.';
-    return {marktwaarde:0,particulierRichtprijs:0,scherpBod:0};
-  }
-  const verwachtKm=Math.max(25000,leeftijd*15000);
-  const kmVerschil=(verwachtKm-km)/verwachtKm;
-  const kmFactor=Math.max(0.62,Math.min(1.28,1+kmVerschil*0.32));
-  let brandstofFactor=1;
-  if(fuel.includes('DIESEL') && leeftijd>10) brandstofFactor=0.88;
-  if((fuel.includes('ELEKTR')||fuel.includes('HYBR')) && leeftijd<8) brandstofFactor=1.04;
-  let leeftijdFactor=restwaardeFactor(leeftijd);
-  let marktwaarde=basisNieuw*leeftijdFactor*kmFactor*brandstofFactor;
-  marktwaarde*=1+val('marktcorrectie')/100;
-  marktwaarde=Math.max(500,Math.round(marktwaarde/100)*100);
-  const particulier=Math.max(300,Math.round((marktwaarde*0.78-350)/100)*100);
-  const scherp=Math.max(200,Math.round((particulier*0.86)/50)*50);
-  if(cat && km) zekerheid='Gemiddeld';
-  if(cat && km && document.getElementById('model').value) zekerheid='Redelijk';
-  uitleg.push('Gebaseerd op leeftijd, nieuwprijs, circa 15.000 km per jaar en particuliere inkoopmarge.');
-  document.getElementById('marktwaarde').textContent=euro(marktwaarde);
-  document.getElementById('particulierRichtprijs').textContent=euro(particulier);
-  document.getElementById('scherpBod').textContent=euro(scherp);
-  document.getElementById('prijsZekerheid').textContent=zekerheid;
-  document.getElementById('prijsUitleg').textContent=uitleg.join(' ');
-  if(!document.activeElement || document.activeElement.id!=='verkoop') document.getElementById('verkoop').value=marktwaarde;
-  return {marktwaarde,particulierRichtprijs:particulier,scherpBod:scherp};
+function autoApkKosten(v){
+ let d=apkDays(v);
+ setCost('Nieuwe APK-keuring',d!==null&&d<300,65);
+ setCost('APK-risicoreserve',d!==null&&d<190,d<0?350:d<90?250:150);
 }
-
-function getChecks(attr){return [...document.querySelectorAll('['+attr+']:checked')].map(x=>({label:x.parentElement.textContent.trim(),value:Number(x.dataset[attr.replace('data-','')])||0}));}
+function deductions(){
+ return [...document.querySelectorAll('#deducts .check')].filter(r=>r.querySelector('[type=checkbox]').checked).map(r=>({name:r.querySelector('b').textContent,value:+r.querySelector('[type=number]').value||0}));
+}
+function baseMarket(){
+ let age=Math.max(0,new Date().getFullYear()-num('jaar')),cat=num('catalogus')||22000,km=num('km');
+ if(!age||!km)return 0;
+ let table=[1,.78,.65,.55,.47,.40,.34,.30,.26,.23,.20],f=age<=10?table[Math.floor(age)]:Math.max(.035,.20*Math.pow(.92,age-10));
+ let expected=Math.max(25000,age*15000),kf=Math.max(.62,Math.min(1.28,1+(expected-km)/expected*.32));
+ let fuel=$('brandstof').value.toUpperCase(),ff=fuel.includes('DIESEL')&&age>10?.88:1;
+ let body=$('body').value.toLowerCase(),bf=body.includes('station')?1.04:body.includes('cabrio')?.95:1;
+ let doors=num('deuren'),df=doors===3?.94:doors===2?.92:1;
+ return Math.max(500,Math.round(cat*f*kf*ff*bf*df*(1+num('marktcorrectie')/100)/100)*100);
+}
+function winstDoel(snel){
+ if(document.activeElement!==$('marge')){
+  let target=snel<=2500?500:snel<=5000?750:Math.round(snel*.15/50)*50;
+  $('marge').value=target;
+ }
+ return num('marge');
+}
 function bereken(){
-  const autoPrijs=automatischePrijs();
-  const aftrekItems=getChecks('data-deduct'), plusItems=getChecks('data-add');
-  const aftrek=aftrekItems.reduce((s,x)=>s+x.value,0), plus=plusItems.reduce((s,x)=>s+x.value,0);
-  const verkoop=val('verkoop'), vraagprijs=val('vraagprijs'), marge=val('marge'), reparatie=val('reparatie'), verkoopkosten=val('verkoopkosten'), buffer=val('buffer'), overig=val('overig');
-  const gecorrigeerdeWaarde=verkoop-aftrek+plus;
-  const totaalKosten=marge+reparatie+verkoopkosten+buffer+overig;
-  const maxBod=Math.max(0,gecorrigeerdeWaarde-totaalKosten);
-  const openingsbod=Math.max(0,Math.round(maxBod*(1-val('openingskorting')/100)/50)*50);
-  const winstBijVraag=gecorrigeerdeWaarde-vraagprijs-reparatie-verkoopkosten-buffer-overig;
-  document.getElementById('maxBod').textContent=euro(maxBod);
-  document.getElementById('openingsbod').textContent=euro(openingsbod);
-  document.getElementById('winstVraag').textContent=euro(winstBijVraag);
-  document.getElementById('winstVraag').style.color=winstBijVraag>=marge?'#166534':winstBijVraag>=0?'#92400e':'#991b1b';
-  const risicopunten=aftrekItems.length+(buffer<200?2:0)+(reparatie<200?1:0);
-  let riskClass='green',risk='Laag risico'; if(risicopunten>=5){riskClass='red';risk='Hoog risico'}else if(risicopunten>=2){riskClass='orange';risk='Gemiddeld risico'}
-  document.getElementById('risico').innerHTML='<span class="badge '+riskClass+'">'+risk+'</span>';
-  document.getElementById('details').innerHTML=`
-    <div class="row"><span>Verwachte verkoopprijs</span><strong>${euro(verkoop)}</strong></div>
-    <div class="row"><span>Aftrekpunten</span><strong>- ${euro(aftrek)}</strong></div>
-    <div class="row"><span>Pluspunten</span><strong>+ ${euro(plus)}</strong></div>
-    <div class="row"><span>Reparaties/verkoop/overig</span><strong>- ${euro(reparatie+verkoopkosten+overig)}</strong></div>
-    <div class="row"><span>Risicobuffer</span><strong>- ${euro(buffer)}</strong></div>
-    <div class="row"><span>Gewenste winst</span><strong>- ${euro(marge)}</strong></div>`;
-  let advies='';
-  if(vraagprijs<=maxBod) advies='Interessant: de vraagprijs ligt binnen jouw maximum. Probeer te openen rond '+euro(openingsbod)+'.';
-  else if(vraagprijs<=maxBod+250) advies='Alleen interessant als je kunt onderhandelen tot maximaal '+euro(maxBod)+'.';
-  else advies='Laten staan, tenzij de verwachte verkoopprijs aantoonbaar hoger is. Vraagprijs ligt te ver boven jouw maximum.';
-  document.getElementById('advies').textContent=advies;
-  return {maxBod,openingsbod,winstBijVraag,aftrek,plus,risk,advies,...autoPrijs};
+ let ref=baseMarket(),snel=Math.round(ref*(1-num('snelkorting')/100)/50)*50,ds=deductions(),repair=ds.reduce((s,x)=>s+x.value,0);
+ let fixed=num('verkoopkosten')+num('buffer')+num('overig'),profit=winstDoel(snel),max=Math.max(0,snel-repair-fixed-profit),open=Math.max(0,Math.round(max*(1-num('korting')/100)/50)*50);
+ $('referentie').textContent=euro(ref);$('snelwaarde').textContent=euro(snel);$('totaalkosten').textContent=euro(repair+fixed);$('doelwinst').textContent=euro(profit);$('maxbod').textContent=euro(max);$('opening').textContent=euro(open);
+ if(!$('berichtbod').value||document.activeElement!==$('berichtbod'))$('berichtbod').value=open;
+ $('deductList').innerHTML=ds.length?'<h3>Geselecteerde herstel- en risicoposten</h3>'+ds.map(x=>`<div class="row"><span>${x.name}</span><strong>- ${euro(x.value)}</strong></div>`).join(''):'<div class="small" style="margin-top:10px">Geen herstelposten geselecteerd.</div>';
+ $('calc').innerHTML=`<div class="row"><span>Herstel/risico</span><strong>- ${euro(repair)}</strong></div><div class="row"><span>Poetsen, buffer en overig</span><strong>- ${euro(fixed)}</strong></div><div class="row"><span>Gewenste winst</span><strong>- ${euro(profit)}</strong></div>`;
+ let q=num('vraag');
+ $('advies').innerHTML=!ref?'<b>Vul eerst bouwjaar en kilometerstand in.</b>':q&&q<=max?`<b class="green">Interessant.</b> Vraagprijs ligt binnen het berekende maximum. Open rond ${euro(open)}.`:q?`<b class="red">Te duur bij deze uitgangspunten.</b> Maximaal ${euro(max)} bieden.`:`<b>Maximaal ${euro(max)} bieden; open rond ${euro(open)}.</b>`;
 }
-
-function bewaarAuto(){
-  const calc=bereken();
-  const autos=JSON.parse(localStorage.getItem('autoHandelAutos')||'[]');
-  const data={id:Date.now(),datum:new Date().toLocaleDateString('nl-NL'),...Object.fromEntries(ids.map(id=>[id,document.getElementById(id).value])),checks:[...document.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.parentElement.textContent.trim()),...calc};
-  autos.unshift(data); localStorage.setItem('autoHandelAutos',JSON.stringify(autos));
-  document.getElementById('saveMsg').textContent='Auto opgeslagen op deze telefoon.'; toonAutos();
+const rules=[
+ {re:/airco.{0,25}(werkt niet|defect|leeg|nakijken)|geen werkende airco/i,name:'Airco reparatie',level:'red',why:'De advertentie meldt een aircoprobleem.'},
+ {re:/airco.{0,20}(gevuld|service|werkt goed)/i,name:null,level:'green',why:'Airco wordt als werkend of recent onderhouden genoemd.'},
+ {re:/distributie.{0,30}(onbekend|niet bekend|geen bewijs)/i,name:'Distributieriem onbekend',level:'red',why:'Vervanging van de distributie is niet aantoonbaar.'},
+ {re:/koppeling.{0,20}(zwaar|slipt|versleten|verdacht)/i,name:'Koppeling verdacht / vervangen',level:'red',why:'De advertentie wijst op een mogelijke koppelingreparatie.'},
+ {re:/(motorlamp|storingslamp|check engine|motormanagement).{0,20}(brandt|aan|storing)/i,name:'Motorstoringslampje / storing',level:'red',why:'Er is een motor- of emissiestoring genoemd.'},
+ {re:/(schade|deuk|hagel)/i,name:'Deuken / hagelschade',level:'orange',why:'Er wordt carrosserieschade genoemd.'},
+ {re:/voorruit.{0,20}(ster|barst|scheur|schade)/i,name:'Voorruit vervangen',level:'red',why:'Er wordt voorruitschade genoemd.'},
+ {re:/(banden).{0,25}(versleten|slecht|aan vervanging)/i,name:'2 banden vervangen',level:'orange',why:'De banden vragen aandacht.'},
+ {re:/(remmen|remblokken|remschijven).{0,25}(versleten|slecht|aan vervanging)/i,name:'Remmen voor',level:'orange',why:'De remmen vragen aandacht.'},
+ {re:/(geen|zonder).{0,20}(onderhoudsboek|onderhoudshistorie)|historie onbekend/i,name:'Geen onderhoudshistorie',level:'orange',why:'Onderhoudshistorie is afwezig of onduidelijk.'},
+ {re:/(roetfilter|egr).{0,25}(storing|verstopt|defect)/i,name:'Roetfilter / EGR risico diesel',level:'red',why:'Diesel-emissiesysteem wordt als probleem genoemd.'},
+ {re:/(automaat|versnellingsbak).{0,25}(storing|slipt|schokt|defect)/i,name:'Automaat / versnellingsbak verdacht',level:'red',why:'De transmissie wordt als risico genoemd.'},
+ {re:/(nieuwe apk|apk tot|apk geldig tot)/i,name:null,level:'green',why:'De advertentie noemt APK-informatie.'},
+ {re:/(onderhoudsboekjes aanwezig|dealer onderhouden|volledige historie)/i,name:null,level:'green',why:'De advertentie noemt aantoonbare onderhoudshistorie.'}
+];
+let findings=[];
+function analyseerAdvertentie(){
+ let t=$('advertentie').value.trim();findings=[];
+ if(!t){$('analyseResultaat').textContent='Plak eerst de advertentietekst.';return}
+ let km=t.match(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,6})\s*(?:km|kilometer)/i);if(km&&!$('km').value)$('km').value=km[1].replace(/\D/g,'');
+ let price=t.match(/(?:€|eur)\s*([\d.]+)/i);if(price&&!$('vraag').value)$('vraag').value=price[1].replace(/\D/g,'');
+ rules.forEach(r=>{if(r.re.test(t)){findings.push(r);if(r.name)setCost(r.name,true)}});
+ if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value)&&/(stuur|klonk|tik|speling)/i.test(t)){setCost('Stuurhuis / stuurkolom verdacht',true);findings.push({level:'red',why:'Bij deze Kia Ceed wordt een stuur- of spelingklacht genoemd.'})}
+ $('analyseResultaat').innerHTML=findings.length?findings.map(f=>`<span class="pill ${f.level}">${f.why}</span>`).join(''):'Geen duidelijke kosten- of risicosignalen gevonden. Controleer de tekst handmatig.';
+ bereken();
 }
-function toonAutos(){
-  const box=document.getElementById('opgeslagen'); const autos=JSON.parse(localStorage.getItem('autoHandelAutos')||'[]');
-  if(!autos.length){box.innerHTML='<div class="empty">Nog geen auto’s opgeslagen.</div>';return;}
-  box.innerHTML=autos.map(a=>`<div class="saved"><h3>${a.model||'Onbekend model'} ${a.kenteken?'· '+a.kenteken:''}</h3><div class="meta">${a.datum} · ${a.jaar||'?'} · ${a.km?Number(a.km).toLocaleString('nl-NL')+' km':'km onbekend'}</div><div class="mini"><div>Vraagprijs<br><strong>${euro(a.vraagprijs)}</strong></div><div>Particuliere richtprijs<br><strong>${euro(a.particulierRichtprijs)}</strong></div><div>Max bod<br><strong>${euro(a.maxBod)}</strong></div><div>Marktwaarde<br><strong>${euro(a.marktwaarde)}</strong></div></div><button class="btn secondary" onclick="laadAuto(${a.id})">Open deze auto</button><button class="btn danger" onclick="verwijderAuto(${a.id})">Verwijder</button></div>`).join('');
+function wisAnalyse(){findings=[];$('advertentie').value='';$('analyseResultaat').textContent='Analyse gewist.'}
+function topReasons(){
+ let ds=deductions().sort((a,b)=>b.value-a.value).slice(0,3);
+ return ds.map(x=>x.name.toLowerCase());
 }
-function laadAuto(id){
-  const a=JSON.parse(localStorage.getItem('autoHandelAutos')||'[]').find(x=>x.id===id); if(!a)return;
-  ids.forEach(k=>{if(a[k]!==undefined)document.getElementById(k).value=a[k]});
-  document.querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=(a.checks||[]).includes(x.parentElement.textContent.trim()));
-  bereken(); window.scrollTo({top:0,behavior:'smooth'});
+function maakBericht(){
+ let bid=num('berichtbod')||Math.round(num('opening')),vraag=num('vraag'),reasons=topReasons(),stijl=$('stijl').value;
+ let intro=stijl==='direct'?'Goedendag, ik heb de auto doorgerekend op basis van de informatie in de advertentie.':stijl==='snel'?'Goedendag, ik heb serieuze interesse en kan snel handelen.':stijl==='laatste'?'Goedendag, ik heb alles nog één keer zorgvuldig doorgerekend.':'Goedendag, bedankt voor de informatie over de auto. Ik heb de auto even rustig doorgerekend.';
+ let why=reasons.length?` Ik moet daarbij rekening houden met ${reasons.join(', ')} en met de kosten om de auto netjes en verkoopklaar te maken.`:' Ik moet daarbij rekening houden met onderhoud, APK en mogelijke onverwachte kosten.';
+ let offer=stijl==='laatste'?` Mijn uiterste bod is daarom ${euro(bid)}. Daar kan ik helaas niet boven gaan.`:` Daarom kom ik uit op een verantwoord bod van ${euro(bid)}.`;
+ let close=stijl==='snel'?' Als dit akkoord is, kan ik op korte termijn langskomen en direct betalen.':stijl==='direct'?' Als dit bedrag bespreekbaar is, hoor ik het graag.':stijl==='laatste'?' Als dit akkoord is, kunnen we direct een afspraak maken.':' Ik begrijp dat dit lager kan zijn dan de vraagprijs, maar het is wel een serieus en onderbouwd bod. Als het bespreekbaar is, hoor ik het graag.';
+ $('bodbericht').value=intro+why+offer+close;
 }
-function verwijderAuto(id){const autos=JSON.parse(localStorage.getItem('autoHandelAutos')||'[]').filter(x=>x.id!==id);localStorage.setItem('autoHandelAutos',JSON.stringify(autos));toonAutos();}
-function nieuwFormulier(){ids.forEach(id=>{const el=document.getElementById(id);if(['vraagprijs','verkoop','marge','reparatie','verkoopkosten','buffer','overig','openingskorting'].includes(id))return;el.value=''});document.querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=false);document.getElementById('saveMsg').textContent='';bereken();window.scrollTo({top:0,behavior:'smooth'});}
-document.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',bereken));
-document.getElementById('kenteken').addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    e.preventDefault();
-    haalRDW();
-  }
-});
-document.getElementById('kenteken').addEventListener('input',()=>{
-  document.getElementById('rdwStatus').textContent='Druk op "Zoek kenteken bij RDW".';
-});document.querySelectorAll('input[type=checkbox]').forEach(el=>el.addEventListener('change',bereken));
-bereken();toonAutos();
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
-  });
+async function kopieerBericht(){try{await navigator.clipboard.writeText($('bodbericht').value);$('copyStatus').textContent='Tekst gekopieerd.'}catch(e){$('bodbericht').select();document.execCommand('copy');$('copyStatus').textContent='Tekst gekopieerd.'}}
+function openWhatsApp(){let t=$('bodbericht').value||'';if(!t){maakBericht();t=$('bodbericht').value}window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
+function maakVragen(){
+ let t=$('advertentie').value.toLowerCase(),qs=[];
+ if(!/distributie|ketting/.test(t))qs.push('Is bekend wanneer de distributieriem of distributieketting voor het laatst is vervangen of gecontroleerd?');
+ if(!/airco/.test(t))qs.push('Werkt de airco goed en wordt hij koud?');
+ if(!/onderhoudsboek|historie|dealer onderhouden/.test(t))qs.push('Zijn onderhoudsboekjes en facturen aanwezig?');
+ if(!/apk/.test(t))qs.push('Tot wanneer is de APK geldig en verwacht u aandachtspunten voor een nieuwe APK?');
+ if(!/banden/.test(t))qs.push('Hoe oud zijn de banden en hoeveel profiel hebben ze ongeveer?');
+ if(!/rem/.test(t))qs.push('Wanneer zijn remblokken en remschijven voor het laatst vervangen?');
+ qs.push('Branden er waarschuwingslampjes of zijn er storingen bekend?','Zijn er lekkages, bijgeluiden, schade of andere gebreken die nog niet in de advertentie staan?');
+ if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value))qs.push('Is er ooit iets gerepareerd aan het stuurhuis of de stuurkolom en is er speling of een tikkend geluid?');
+ $('vragen').value=qs.map((q,i)=>`${i+1}. ${q}`).join('\n');
 }
+function bewaar(){
+ let data={datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,merk:$('merk').value,model:$('model').value,km:$('km').value,vraag:$('vraag').value,max:$('maxbod').textContent,bericht:$('bodbericht').value};
+ let a=JSON.parse(localStorage.getItem('autos-v3')||'[]');a.unshift(data);localStorage.setItem('autos-v3',JSON.stringify(a));toon();
+}
+function toon(){
+ let a=JSON.parse(localStorage.getItem('autos-v3')||'[]');
+ $('saved').innerHTML=a.length?'<h3>Opgeslagen auto’s</h3>'+a.map(x=>`<div class="saved"><b>${x.merk} ${x.model} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · vraag € ${x.vraag} · max ${x.max}</div></div>`).join(''):'';
+}
+document.querySelectorAll('input,textarea,select').forEach(x=>x.addEventListener('input',bereken));
+$('kenteken').addEventListener('keydown',e=>{if(e.key==='Enter')haalRDW()});
+bereken();toon();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 </body>
 </html>
