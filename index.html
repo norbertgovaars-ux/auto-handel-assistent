@@ -7,7 +7,7 @@
 <meta name="description" content="Auto Handel Assistent: advertentieanalyse, RDW, foto's, marktwaarde en bodbericht.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Auto Handel Assistent v9</title>
+<title>Auto Handel Assistent v10</title>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b;--blue:#1d4ed8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px Arial;color:var(--ink)}
@@ -32,9 +32,24 @@ details summary{font-weight:800;cursor:pointer}.saved{border:1px solid var(--lin
 <body>
 <main>
 <div class="top">
-<h1>Auto Handel Assistent v9</h1>
-<div class="sub">Marktwaardemodel met exacte uitvoering, motorvermogen, vergelijkingsprijzen en volledige onderbouwing.</div>
+<h1>Auto Handel Assistent v10</h1>
+<div class="sub">Aankoopadvies bovenaan, automatische RDW/APK, advertentieanalyse en waarde van extra’s.</div>
 </div>
+
+<section class="card" id="aankoopadvies">
+<h2>Aankoopadvies</h2>
+<div class="valuegrid">
+<div class="valuebox primary"><div class="small">Eindadvies</div><div id="adviesBoven" class="n">–</div><div class="small" id="adviesBovenTekst">Vul advertentie, kenteken en kilometerstand in.</div></div>
+<div class="valuebox"><div class="small">Maximale aankoopprijs</div><div id="maxBoven" class="n">€ 0</div><div class="small">Inclusief herstelkosten, buffer en gewenste winst.</div></div>
+<div class="valuebox"><div class="small">Openingsbod</div><div id="openBoven" class="n">€ 0</div><div class="small">Startpunt voor de onderhandeling.</div></div>
+</div>
+<div class="valuegrid" style="margin-top:9px">
+<div class="valuebox"><div class="small">Perfecte particuliere waarde</div><div id="perfectBoven" class="n">€ 0</div></div>
+<div class="valuebox"><div class="small">Snelle verkoopwaarde</div><div id="snelBoven" class="n">€ 0</div></div>
+<div class="valuebox"><div class="small">Koopscore</div><div id="scoreBoven" class="n">0 / 100</div></div>
+</div>
+<div id="samenvattingBoven" class="small" style="margin-top:10px"></div>
+</section>
 
 <section class="card">
 <h2>1. Advertentie invoeren</h2>
@@ -88,7 +103,15 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>3. Marktvergelijking</h2>
+<h2>3. Sleutels en waardevolle extra’s</h2>
+<div class="small">De app probeert deze punten uit de advertentietekst te halen. Je kunt alles zelf corrigeren.</div>
+<div class="checks" id="extras"></div>
+<div class="row"><span>Totale meerwaarde extra’s</span><strong id="extrasTotaal">€ 0</strong></div>
+<div id="extrasUitleg" class="small"></div>
+</section>
+
+<section class="card">
+<h2>4. Marktvergelijking</h2>
 <div class="small">Vul bij voorkeur 3 tot 5 echt vergelijkbare auto's in: hetzelfde model en motor, bouwjaar ongeveer ±2 jaar en een vergelijkbare kilometerstand.</div>
 <div class="grid">
 <div><label>Vergelijkbare prijs 1 (€)</label><input id="comp1" type="number"></div>
@@ -104,7 +127,7 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>4. Koopscore</h2>
+<h2>5. Koopscore</h2>
 <div class="valuegrid">
 <div class="valuebox primary"><div class="small">Koopscore</div><div id="koopscore" class="n">0 / 100</div><div class="small">Combinatie van prijs, winst, risico, verkoopbaarheid en volledigheid van informatie.</div></div>
 <div class="valuebox"><div class="small">Risiconiveau</div><div id="risiconiveau" class="n">–</div><div class="small">Laag, gemiddeld of hoog.</div></div>
@@ -114,7 +137,7 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>5. Waarde in één oogopslag</h2>
+<h2>6. Waarde in één oogopslag</h2>
 <div class="valuegrid">
 <div class="valuebox"><div class="small">Maximale particuliere marktwaarde</div><div id="perfectwaarde" class="n">€ 0</div><div class="small">Huidig jaar en km, maar technisch/optisch netjes en ±12 maanden APK.</div></div>
 <div class="valuebox"><div class="small">Snelle verkoopwaarde</div><div id="snelwaarde" class="n">€ 0</div><div class="small">Scherp geprijsd voor verkoop aan particulier binnen ongeveer twee weken.</div></div>
@@ -136,7 +159,7 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </details>
 
 <section class="card">
-<h2>6. Winst en vaste kosten</h2>
+<h2>7. Winst en vaste kosten</h2>
 <div class="grid">
 <div><label>Gewenste winst (€)</label><input id="marge" type="number" value="500"></div>
 <div><label>Poetsen / advertentie (€)</label><input id="verkoopkosten" type="number" value="125"></div>
@@ -148,13 +171,13 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>7. Herstel- en gereedmaakkosten</h2>
+<h2>8. Herstel- en gereedmaakkosten</h2>
 <div class="small">Vink aan wat nodig of onzeker is. Ieder bedrag is te corrigeren.</div>
 <div class="checks" id="deducts"></div><div id="deductList"></div>
 </section>
 
 <section class="card">
-<h2>8. Volledige berekening</h2>
+<h2>9. Volledige berekening</h2>
 <div class="row"><span>Perfecte marktwaarde</span><strong id="ref2">€ 0</strong></div>
 <div class="row"><span>Advertentiecorrectie en snelle verkoop</span><strong id="snel2">€ 0</strong></div>
 <div class="row"><span>Herstel- en risicokosten</span><strong id="repair2">- € 0</strong></div>
@@ -166,7 +189,7 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>9. Onderbouwd bodbericht</h2>
+<h2>10. Onderbouwd bodbericht</h2>
 <div class="grid">
 <div><label>Stijl</label><select id="stijl"><option value="vriendelijk">Vriendelijk</option><option value="direct">Direct en zakelijk</option><option value="snel">Snelle deal</option><option value="laatste">Definitief laatste bod</option></select></div>
 <div><label>Te gebruiken bod (€)</label><input id="berichtbod" type="number"></div>
@@ -178,13 +201,13 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 </section>
 
 <section class="card">
-<h2>10. Vragen voor de verkoper</h2>
+<h2>11. Vragen voor de verkoper</h2>
 <button class="btn alt" onclick="maakVragen()">Genereer ontbrekende vragen</button>
 <textarea id="vragen"></textarea>
 </section>
 
 <section class="card">
-<h2>11. Notities en bewaren</h2>
+<h2>12. Notities en bewaren</h2>
 <textarea id="notities"></textarea>
 <button class="btn" onclick="bewaar()">Auto opslaan</button><div id="saved"></div>
 </section>
@@ -194,7 +217,38 @@ De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reade
 <script>
 const $=id=>document.getElementById(id),num=id=>Number($(id).value)||0,euro=n=>new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
 const costs=[['Nieuwe APK-keuring',65],['APK-risicoreserve',200],['Kleine beurt',220],['Grote beurt',400],['2 banden vervangen',260],['4 banden vervangen',520],['Remmen voor',350],['Remmen achter',300],['Accu vervangen',150],['Airco service / vullen',140],['Airco reparatie',550],['Koppeling verdacht / vervangen',750],['Distributieriem onbekend',650],['Distributieketting verdacht',900],['Stuurhuis / stuurkolom verdacht',650],['Voorruit vervangen',450],['Deuken / hagelschade',350],['Lakschade herstellen',450],['Interieur grondig reinigen',150],['Geen onderhoudshistorie',300],['Motorstoringslampje / storing',750],['Roetfilter / EGR risico diesel',700],['Automaat / versnellingsbak verdacht',1000]];
-function makeDeducts(){$('deducts').innerHTML=costs.map(([n,v])=>`<label class="check"><input type="checkbox"><span><b>${n}</b></span><input type="number" value="${v}"></label>`).join('');document.querySelectorAll('#deducts input').forEach(x=>x.addEventListener('input',bereken))}makeDeducts();
+
+const extraItems=[
+ ['Twee originele sleutels',175],
+ ['Extra set winterbanden op velg',350],
+ ['Extra set zomerbanden op velg',300],
+ ['Skibox',175],
+ ['Dakdragers',100],
+ ['Trekhaak',150],
+ ['Navigatie / multimedia',100],
+ ['Achteruitrijcamera',125],
+ ['Parkeersensoren',100],
+ ['Reservewiel / thuiskomer',50],
+ ['Volledige onderhoudsmap',125],
+ ['Originele accessoires',75]
+];
+function makeExtras(){
+ $('extras').innerHTML=extraItems.map(([n,v])=>`<label class="check"><input type="checkbox"><span><b>${n}</b></span><input type="number" value="${v}"></label>`).join('');
+ document.querySelectorAll('#extras input').forEach(x=>x.addEventListener('input',bereken));
+}
+function setExtra(name,on,value){
+ const r=[...document.querySelectorAll('#extras .check')].find(x=>x.querySelector('b').textContent===name);
+ if(r){r.querySelector('[type=checkbox]').checked=on;if(value!==undefined)r.querySelector('[type=number]').value=value}
+}
+function extrasValue(){
+ const selected=[...document.querySelectorAll('#extras .check')].filter(r=>r.querySelector('[type=checkbox]').checked).map(r=>({name:r.querySelector('b').textContent,value:+r.querySelector('[type=number]').value||0}));
+ const total=selected.reduce((s,x)=>s+x.value,0);
+ $('extrasTotaal').textContent=euro(total);
+ $('extrasUitleg').textContent=selected.length?selected.map(x=>`${x.name}: ${euro(x.value)}`).join(' · '):'Geen extra’s geselecteerd.';
+ return {total,selected};
+}
+
+function makeDeducts(){$('deducts').innerHTML=costs.map(([n,v])=>`<label class="check"><input type="checkbox"><span><b>${n}</b></span><input type="number" value="${v}"></label>`).join('');document.querySelectorAll('#deducts input').forEach(x=>x.addEventListener('input',bereken))}makeDeducts();makeExtras();
 function setCost(name,on,value){let r=[...document.querySelectorAll('#deducts .check')].find(x=>x.querySelector('b').textContent===name);if(r){r.querySelector('[type=checkbox]').checked=on;if(value!==undefined)r.querySelector('[type=number]').value=value}}
 function deductions(){return[...document.querySelectorAll('#deducts .check')].filter(r=>r.querySelector('[type=checkbox]').checked).map(r=>({name:r.querySelector('b').textContent,value:+r.querySelector('[type=number]').value||0}))}
 function clean(k){return(k||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}function dateNL(v){let s=String(v||'').replace(/\D/g,'');return s.length===8?`${s.slice(6)}-${s.slice(4,6)}-${s.slice(0,4)}`:''}
@@ -330,6 +384,17 @@ if(pr)$('vraag').value=pr[1].replace(/\D/g,'');
 if(jaar&&!$('jaar').value)$('jaar').value=jaar[1];
 if(fuel&&!$('brandstof').value)$('brandstof').value=fuel[1];
 if(kt)$('kenteken').value=clean(kt[1]);
+setExtra('Twee originele sleutels',/(2|twee)\s*(originele\s*)?sleutels|reservesleutel/i.test(t));
+setExtra('Extra set winterbanden op velg',/(winterbanden|winterwielen).{0,30}(set|velg|meegeleverd|inbegrepen)/i.test(t));
+setExtra('Extra set zomerbanden op velg',/(zomerbanden|zomerwielen).{0,30}(set|velg|meegeleverd|inbegrepen)/i.test(t));
+setExtra('Skibox',/skibox|dakkoffer/i.test(t));
+setExtra('Dakdragers',/dakdragers|dakrails/i.test(t));
+setExtra('Trekhaak',/trekhaak/i.test(t));
+setExtra('Navigatie / multimedia',/navigatie|multimedia|carplay|android auto/i.test(t));
+setExtra('Achteruitrijcamera',/achteruitrijcamera|camera achter/i.test(t));
+setExtra('Parkeersensoren',/parkeersensoren|pdc/i.test(t));
+setExtra('Reservewiel / thuiskomer',/reservewiel|thuiskomer/i.test(t));
+setExtra('Volledige onderhoudsmap',/onderhoudsboekjes aanwezig|volledige historie|facturen aanwezig|onderhoudsmap/i.test(t));
 let impact=0;rules.forEach(([re,name,level,why,val])=>{if(re.test(t)){findings.push({level,why,val});impact+=val;if(name)setCost(name,true)}});$('adcorrectie').value=Math.round(impact/50)*50;$('analyseSamenvatting').innerHTML=`<b>${findings.length} signalen gevonden.</b>`;$('analysePlus').innerHTML=findings.filter(x=>x.level==='green').map(x=>`<span class="pill green">${x.why}</span>`).join('');$('analyseRisico').innerHTML=findings.filter(x=>x.level!=='green').map(x=>`<span class="pill ${x.level}">${x.why}</span>`).join('');let miss=[];if(!/apk/i.test(t))miss.push('APK');if(!/onderhoud|historie|factuur/i.test(t))miss.push('onderhoud');if(!/distributie|ketting/i.test(t))miss.push('distributie');if(!/airco/i.test(t))miss.push('airco');$('analyseOntbreekt').innerHTML=miss.length?`<h3>Ontbreekt</h3><div class="small">${miss.join(', ')}</div>`:'';$('analyseGegevens').innerHTML='<h3>Automatisch gevonden</h3>'+
   `<div class="row"><span>Titel</span><strong>${titel?titel[1].trim().slice(0,80):'Niet gevonden'}</strong></div>`+
   `<div class="row"><span>Kilometerstand</span><strong>${km?Number(km[1].replace(/\D/g,'')).toLocaleString('nl-NL')+' km':'Niet gevonden'}</strong></div>`+
@@ -349,7 +414,7 @@ function wisAnalyse(){
  $('adlink').value='';$('advertentie').value='';$('adcorrectie').value=0;$('clipboardStatus').textContent='';
  ['analyseSamenvatting','analyseGegevens','analysePlus','analyseRisico','analyseOntbreekt','analysePrijs'].forEach(id=>$(id).innerHTML='');
  ['kenteken','merk','model','body','variant','deuren','zitplaatsen','jaar','brandstof','apk','apkrest','catalogus','km','vraag','cc','vermogen','cilinders','massa','kleur','trek','teller','recall'].forEach(id=>$(id).value='');
- document.querySelectorAll('#deducts [type=checkbox]').forEach(x=>x.checked=false);
+ document.querySelectorAll('#deducts [type=checkbox],#extras [type=checkbox]').forEach(x=>x.checked=false);
  $('fotoinput').value='';document.querySelectorAll('.photo').forEach((x,i)=>x.textContent=`Foto ${i+1}`);
  $('status').textContent='Klaar voor een nieuwe advertentie.';bereken();
 }
@@ -392,16 +457,26 @@ function koopScore(ref,snel,max,repair,fixed,profit){
   return {score,risk,advice,text};
 }
 
-function bereken(){let ref=perfecteWaarde(),snel=Math.max(0,Math.round((ref*(1-num('snelkorting')/100)+num('adcorrectie'))/50)*50),ds=deductions(),repair=ds.reduce((s,x)=>s+x.value,0),fixed=num('verkoopkosten')+num('buffer')+num('overig');if(document.activeElement!==$('marge'))$('marge').value=snel<=2500?500:snel<=5000?750:Math.round(snel*.15/50)*50;let profit=num('marge'),max=Math.max(0,snel-repair-fixed-profit),opening=Math.max(0,Math.round(max*(1-num('korting')/100)/50)*50);$('perfectwaarde').textContent=$('ref2').textContent=euro(ref);$('snelwaarde').textContent=$('snel2').textContent=euro(snel);$('maxbod').textContent=$('max2').textContent=euro(max);$('repair2').textContent='- '+euro(repair);$('fixed2').textContent='- '+euro(fixed);$('profit2').textContent='- '+euro(profit);$('opening').textContent=euro(opening);if(!$('berichtbod').value||document.activeElement!==$('berichtbod'))$('berichtbod').value=opening;$('waardeUitleg').textContent=ref?`Onderbouwde marktwaarde voor ${$('merk').value} ${$('model').value}, bouwjaar ${$('jaar').value}, ${Number(num('km')).toLocaleString('nl-NL')} km, exacte motor en uitvoering voor zover bekend, nette staat, geen storingen en circa 12 maanden APK. Vergelijkbare auto's wegen zwaarder dan de oorspronkelijke catalogusprijs.`:'Vul RDW, kilometerstand en liefst 3 vergelijkingsprijzen in.';$('deductList').innerHTML=ds.length?ds.map(x=>`<div class="row"><span>${x.name}</span><strong>- ${euro(x.value)}</strong></div>`).join(''):'<div class="small">Geen kosten geselecteerd.</div>';let q=num('vraag');let ks=koopScore(ref,snel,max,repair,fixed,profit);
+function bereken(){let ex=extrasValue(),ref=perfecteWaarde()+Math.min(ex.total,600),snel=Math.max(0,Math.round((ref*(1-num('snelkorting')/100)+num('adcorrectie'))/50)*50),ds=deductions(),repair=ds.reduce((s,x)=>s+x.value,0),fixed=num('verkoopkosten')+num('buffer')+num('overig');if(document.activeElement!==$('marge'))$('marge').value=snel<=2500?500:snel<=5000?750:Math.round(snel*.15/50)*50;let profit=num('marge'),max=Math.max(0,snel-repair-fixed-profit),opening=Math.max(0,Math.round(max*(1-num('korting')/100)/50)*50);$('perfectwaarde').textContent=$('ref2').textContent=euro(ref);$('snelwaarde').textContent=$('snel2').textContent=euro(snel);$('maxbod').textContent=$('max2').textContent=euro(max);$('repair2').textContent='- '+euro(repair);$('fixed2').textContent='- '+euro(fixed);$('profit2').textContent='- '+euro(profit);$('opening').textContent=euro(opening);if(!$('berichtbod').value||document.activeElement!==$('berichtbod'))$('berichtbod').value=opening;$('waardeUitleg').textContent=ref?`Onderbouwde marktwaarde voor ${$('merk').value} ${$('model').value}, bouwjaar ${$('jaar').value}, ${Number(num('km')).toLocaleString('nl-NL')} km, exacte motor en uitvoering voor zover bekend, nette staat, geen storingen en circa 12 maanden APK. Vergelijkbare auto's wegen zwaarder dan de oorspronkelijke catalogusprijs. Geselecteerde extra’s tellen beperkt mee tot maximaal €600 om dubbeltelling te voorkomen.`:'Vul RDW, kilometerstand en liefst 3 vergelijkingsprijzen in.';$('deductList').innerHTML=ds.length?ds.map(x=>`<div class="row"><span>${x.name}</span><strong>- ${euro(x.value)}</strong></div>`).join(''):'<div class="small">Geen kosten geselecteerd.</div>';let q=num('vraag');let ks=koopScore(ref,snel,max,repair,fixed,profit);
 $('koopscore').textContent=`${ks.score} / 100`;
 $('risiconiveau').textContent=ks.risk;
 $('eindadvies').textContent=ks.advice;
 $('scoreUitleg').textContent=ks.text;
+$('adviesBoven').textContent=ks.advice;
+$('maxBoven').textContent=euro(max);
+$('openBoven').textContent=euro(opening);
+$('perfectBoven').textContent=euro(ref);
+$('snelBoven').textContent=euro(snel);
+$('scoreBoven').textContent=`${ks.score} / 100`;
+$('adviesBovenTekst').textContent=ks.text;
+$('samenvattingBoven').textContent=`Vraagprijs ${euro(q)} · herstel/risico ${euro(repair)} · extra’s ${euro(ex.total)} · gewenste winst ${euro(profit)}. Scroll omlaag om alle bedragen te controleren of aan te passen.`;
 $('advies').innerHTML=!ref?'<b>Vul RDW en kilometerstand in.</b>':q&&q<=max?`<b class="green">Interessant.</b> Open rond ${euro(opening)}.`:q?`<b class="red">Te duur.</b> Ga niet boven ${euro(max)}.`:`<b>Ga niet boven ${euro(max)}.</b>`}
 function maakBericht(){let bid=num('berichtbod'),rs=deductions().sort((a,b)=>b.value-a.value).slice(0,3).map(x=>x.name.toLowerCase()),stijl=$('stijl').value,intro=stijl==='direct'?'Goedendag, ik heb de auto doorgerekend op basis van de advertentie en de voertuiggegevens.':stijl==='snel'?'Goedendag, ik heb serieuze interesse en kan snel handelen.':stijl==='laatste'?'Goedendag, ik heb alles nog één keer zorgvuldig doorgerekend.':'Goedendag, bedankt voor de informatie over de auto. Ik heb de auto rustig doorgerekend.',why=rs.length?` Ik moet rekening houden met ${rs.join(', ')} en met de kosten om de auto netjes in orde te maken.`:' Ik moet rekening houden met onderhoud, APK en mogelijke onverwachte kosten.',offer=stijl==='laatste'?` Mijn uiterste bod is daarom ${euro(bid)}.`:` Daarom kom ik uit op een verantwoord bod van ${euro(bid)}.`,close=stijl==='snel'?' Als dit akkoord is, kan ik op korte termijn langskomen en direct betalen.':' Als dit bespreekbaar is, hoor ik het graag.';$('bodbericht').value=intro+why+offer+close}
 async function kopieerBericht(){await navigator.clipboard.writeText($('bodbericht').value);$('copyStatus').textContent='Tekst gekopieerd.'}function openWhatsApp(){if(!$('bodbericht').value)maakBericht();window.open('https://wa.me/?text='+encodeURIComponent($('bodbericht').value),'_blank')}
-function maakVragen(){let t=$('advertentie').value.toLowerCase(),q=[];if(!/distributie|ketting/.test(t))q.push('Wanneer is de distributie vervangen of gecontroleerd?');if(!/airco/.test(t))q.push('Werkt de airco goed en wordt hij koud?');if(!/onderhoud|historie|factuur/.test(t))q.push('Zijn onderhoudsboekjes en facturen aanwezig?');if(!/apk/.test(t))q.push('Tot wanneer is de APK geldig?');q.push('Branden er waarschuwingslampjes?','Zijn er lekkages, bijgeluiden, schade of andere gebreken?');if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value))q.push('Is er speling of een tikkend geluid in stuurhuis of stuurkolom?');$('vragen').value=q.map((x,i)=>`${i+1}. ${x}`).join('\n')}
-function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v9')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v9',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v9')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
+function maakVragen(){let t=$('advertentie').value.toLowerCase(),q=[];if(!/distributie|ketting/.test(t))q.push('Wanneer is de distributie vervangen of gecontroleerd?');if(!/airco/.test(t))q.push('Werkt de airco goed en wordt hij koud?');if(!/onderhoud|historie|factuur/.test(t))q.push('Zijn onderhoudsboekjes en facturen aanwezig?');if(!/apk/.test(t))q.push('Tot wanneer is de APK geldig?');if(!/sleutel/i.test(t))q.push('Zijn er één of twee originele sleutels aanwezig?');
+if(!/winterband|winterwiel/i.test(t))q.push('Is er een extra set winterbanden of wielen aanwezig?');
+q.push('Zijn er nog accessoires zoals dakdragers, skibox, reservewiel of andere onderdelen inbegrepen?','Branden er waarschuwingslampjes?','Zijn er lekkages, bijgeluiden, schade of andere gebreken?');if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value))q.push('Is er speling of een tikkend geluid in stuurhuis of stuurkolom?');$('vragen').value=q.map((x,i)=>`${i+1}. ${x}`).join('\n')}
+function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v10')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v10',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v10')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
 document.querySelectorAll('input,textarea,select').forEach(x=>x.addEventListener('input',bereken));$('kenteken').addEventListener('keydown',e=>{if(e.key==='Enter')haalRDW()});bereken();toon();if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 </body>
