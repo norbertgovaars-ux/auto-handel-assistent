@@ -7,7 +7,7 @@
 <meta name="description" content="Auto Handel Assistent met RDW, advertentieanalyse en biedbericht.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Auto Handel Assistent v3</title>
+<title>Auto Handel Assistent v4</title>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box} body{margin:0;background:var(--bg);font:16px Arial;color:var(--ink)}
@@ -28,8 +28,8 @@ input[readonly]{background:#f9fafb} textarea{min-height:115px}.btn{width:100%;bo
 </head>
 <body>
 <main>
-<h1>Auto Handel Assistent v3</h1>
-<div class="sub">Conservatieve snelle-verkoopwaarde, realistische herstelkosten, advertentieanalyse en bodbericht.</div>
+<h1>Auto Handel Assistent v4</h1>
+<div class="sub">Uitgebreide advertentieanalyse, conservatieve snelle-verkoopwaarde en onderbouwd bodbericht.</div>
 
 <section class="card">
 <h2>1. Kenteken</h2>
@@ -55,7 +55,7 @@ input[readonly]{background:#f9fafb} textarea{min-height:115px}.btn{width:100%;bo
 <div><label>Catalogusprijs (€)</label><input id="catalogus" type="number" readonly></div>
 <div><label>Kilometerstand</label><input id="km" type="number" inputmode="numeric" placeholder="185000"></div>
 <div><label>Vraagprijs particulier (€)</label><input id="vraag" type="number" inputmode="numeric"></div>
-<div><label>Handmatige marktcorrectie (%)</label><input id="marktcorrectie" type="number" value="0"></div>
+<div><label>Handmatige marktcorrectie (%)</label><input id="marktcorrectie" type="number" value="0"></div><div><label>Advertentiecorrectie (€)</label><input id="adcorrectie" type="number" value="0"></div>
 </div>
 <div class="small" style="margin-top:10px">De referentiewaarde gaat uit van een nette, storingsvrije auto met circa 12 maanden APK die scherp genoeg geprijsd is om ongeveer binnen twee weken te verkopen. Dit blijft een conservatieve indicatie, geen garantie.</div>
 </section>
@@ -81,7 +81,8 @@ input[readonly]{background:#f9fafb} textarea{min-height:115px}.btn{width:100%;bo
 <button class="btn" onclick="analyseerAdvertentie()">Analyseer advertentie</button>
 <button class="btn alt" onclick="wisAnalyse()">Wis analyse</button>
 </div>
-<div id="analyseResultaat" class="small" style="margin-top:10px">Nog geen advertentie geanalyseerd.</div>
+<div id="analyseSamenvatting" style="margin-top:12px"></div>
+<div id="analyseGegevens"></div><div id="analysePlus"></div><div id="analyseRisico"></div><div id="analyseOntbreekt"></div><div id="analysePrijs"></div>
 </section>
 
 <section class="card">
@@ -251,7 +252,7 @@ function winstDoel(snel){
  return num('marge');
 }
 function bereken(){
- let ref=baseMarket(),snel=Math.round(ref*(1-num('snelkorting')/100)/50)*50,ds=deductions(),repair=ds.reduce((s,x)=>s+x.value,0);
+ let ref=baseMarket(),snel=Math.max(0,Math.round((ref*(1-num('snelkorting')/100)+num('adcorrectie'))/50)*50),ds=deductions(),repair=ds.reduce((s,x)=>s+x.value,0);
  let fixed=num('verkoopkosten')+num('buffer')+num('overig'),profit=winstDoel(snel),max=Math.max(0,snel-repair-fixed-profit),open=Math.max(0,Math.round(max*(1-num('korting')/100)/50)*50);
  $('referentie').textContent=euro(ref);$('snelwaarde').textContent=euro(snel);$('totaalkosten').textContent=euro(repair+fixed);$('doelwinst').textContent=euro(profit);$('maxbod').textContent=euro(max);$('opening').textContent=euro(open);
  if(!$('berichtbod').value||document.activeElement!==$('berichtbod'))$('berichtbod').value=open;
@@ -260,34 +261,37 @@ function bereken(){
  let q=num('vraag');
  $('advies').innerHTML=!ref?'<b>Vul eerst bouwjaar en kilometerstand in.</b>':q&&q<=max?`<b class="green">Interessant.</b> Vraagprijs ligt binnen het berekende maximum. Open rond ${euro(open)}.`:q?`<b class="red">Te duur bij deze uitgangspunten.</b> Maximaal ${euro(max)} bieden.`:`<b>Maximaal ${euro(max)} bieden; open rond ${euro(open)}.</b>`;
 }
-const rules=[
- {re:/airco.{0,25}(werkt niet|defect|leeg|nakijken)|geen werkende airco/i,name:'Airco reparatie',level:'red',why:'De advertentie meldt een aircoprobleem.'},
- {re:/airco.{0,20}(gevuld|service|werkt goed)/i,name:null,level:'green',why:'Airco wordt als werkend of recent onderhouden genoemd.'},
- {re:/distributie.{0,30}(onbekend|niet bekend|geen bewijs)/i,name:'Distributieriem onbekend',level:'red',why:'Vervanging van de distributie is niet aantoonbaar.'},
- {re:/koppeling.{0,20}(zwaar|slipt|versleten|verdacht)/i,name:'Koppeling verdacht / vervangen',level:'red',why:'De advertentie wijst op een mogelijke koppelingreparatie.'},
- {re:/(motorlamp|storingslamp|check engine|motormanagement).{0,20}(brandt|aan|storing)/i,name:'Motorstoringslampje / storing',level:'red',why:'Er is een motor- of emissiestoring genoemd.'},
- {re:/(schade|deuk|hagel)/i,name:'Deuken / hagelschade',level:'orange',why:'Er wordt carrosserieschade genoemd.'},
- {re:/voorruit.{0,20}(ster|barst|scheur|schade)/i,name:'Voorruit vervangen',level:'red',why:'Er wordt voorruitschade genoemd.'},
- {re:/(banden).{0,25}(versleten|slecht|aan vervanging)/i,name:'2 banden vervangen',level:'orange',why:'De banden vragen aandacht.'},
- {re:/(remmen|remblokken|remschijven).{0,25}(versleten|slecht|aan vervanging)/i,name:'Remmen voor',level:'orange',why:'De remmen vragen aandacht.'},
- {re:/(geen|zonder).{0,20}(onderhoudsboek|onderhoudshistorie)|historie onbekend/i,name:'Geen onderhoudshistorie',level:'orange',why:'Onderhoudshistorie is afwezig of onduidelijk.'},
- {re:/(roetfilter|egr).{0,25}(storing|verstopt|defect)/i,name:'Roetfilter / EGR risico diesel',level:'red',why:'Diesel-emissiesysteem wordt als probleem genoemd.'},
- {re:/(automaat|versnellingsbak).{0,25}(storing|slipt|schokt|defect)/i,name:'Automaat / versnellingsbak verdacht',level:'red',why:'De transmissie wordt als risico genoemd.'},
- {re:/(nieuwe apk|apk tot|apk geldig tot)/i,name:null,level:'green',why:'De advertentie noemt APK-informatie.'},
- {re:/(onderhoudsboekjes aanwezig|dealer onderhouden|volledige historie)/i,name:null,level:'green',why:'De advertentie noemt aantoonbare onderhoudshistorie.'}
+const adRules=[
+ {re:/airco.{0,25}(werkt niet|defect|leeg|nakijken)|geen werkende airco/i,name:'Airco reparatie',level:'red',why:'Airco werkt niet of moet worden nagekeken.',impact:-550},
+ {re:/airco.{0,20}(gevuld|service|werkt goed|ijskoud)/i,name:null,level:'green',why:'Airco wordt als werkend of recent onderhouden genoemd.',impact:100},
+ {re:/distributie.{0,35}(onbekend|niet bekend|geen bewijs|moet)/i,name:'Distributieriem onbekend',level:'red',why:'Distributie is niet aantoonbaar of vraagt aandacht.',impact:-650},
+ {re:/distributie.{0,35}(vervangen|nieuw|gedaan)/i,name:null,level:'green',why:'Distributie is volgens de advertentie vervangen.',impact:200},
+ {re:/koppeling.{0,25}(zwaar|slipt|versleten|verdacht|moet)/i,name:'Koppeling verdacht / vervangen',level:'red',why:'Mogelijk probleem met koppeling.',impact:-750},
+ {re:/(motorlamp|storingslamp|check engine|motormanagement).{0,25}(brandt|aan|storing)/i,name:'Motorstoringslampje / storing',level:'red',why:'Motor- of emissiestoring genoemd.',impact:-750},
+ {re:/(schade|deuk|hagel|lakschade)/i,name:'Deuken / hagelschade',level:'orange',why:'Carrosserie- of lakschade genoemd.',impact:-350},
+ {re:/voorruit.{0,25}(ster|barst|scheur|schade)/i,name:'Voorruit vervangen',level:'red',why:'Voorruitschade genoemd.',impact:-450},
+ {re:/(banden).{0,30}(versleten|slecht|aan vervanging|profiel laag)/i,name:'2 banden vervangen',level:'orange',why:'Banden vragen aandacht.',impact:-260},
+ {re:/(banden).{0,30}(nieuw|recent vervangen|goed profiel)/i,name:null,level:'green',why:'Banden zijn nieuw of in goede staat.',impact:100},
+ {re:/(remmen|remblokken|remschijven).{0,30}(versleten|slecht|aan vervanging)/i,name:'Remmen voor',level:'orange',why:'Remmen vragen aandacht.',impact:-350},
+ {re:/(geen|zonder).{0,25}(onderhoudsboek|onderhoudshistorie)|historie onbekend/i,name:'Geen onderhoudshistorie',level:'orange',why:'Onderhoudshistorie ontbreekt of is onduidelijk.',impact:-300},
+ {re:/(onderhoudsboekjes aanwezig|dealer onderhouden|volledige historie|facturen aanwezig)/i,name:null,level:'green',why:'Aantoonbare onderhoudshistorie genoemd.',impact:150},
+ {re:/(roetfilter|egr).{0,30}(storing|verstopt|defect|probleem)/i,name:'Roetfilter / EGR risico diesel',level:'red',why:'Diesel-emissiesysteem als probleem genoemd.',impact:-700},
+ {re:/(automaat|versnellingsbak).{0,30}(storing|slipt|schokt|defect|probleem)/i,name:'Automaat / versnellingsbak verdacht',level:'red',why:'Transmissieprobleem genoemd.',impact:-1000},
+ {re:/(nieuwe apk|verse apk|apk bij aflevering)/i,name:null,level:'green',why:'Nieuwe of verse APK genoemd.',impact:150},
+ {re:/(voor handel|export|klusser|handige harry|zo meenemen|zoals hij staat)/i,name:null,level:'red',why:'Formulering wijst op verhoogd risico of verkoop zonder garantie.',impact:-400},
+ {re:/(wegens tijdgebrek|moet weg|snel weg|spoed|vandaag ophalen)/i,name:null,level:'orange',why:'Verkoper lijkt haast te hebben; onderhandelingsruimte mogelijk.',impact:0},
+ {re:/(rook|blauwe rook|witte rook|olieverbruik)/i,name:'Motorstoringslampje / storing',level:'red',why:'Rook of olieverbruik genoemd; mogelijk motorslijtage.',impact:-900},
+ {re:/(lekkage|lekt olie|koelvloeistofverlies)/i,name:'Motorstoringslampje / storing',level:'red',why:'Lekkage of vloeistofverlies genoemd.',impact:-700},
+ {re:/(stuurhuis|stuurkolom|speling op stuur|tikkend stuur)/i,name:'Stuurhuis / stuurkolom verdacht',level:'red',why:'Stuurhuis of stuurkolom vraagt aandacht.',impact:-650},
+ {re:/(1e eigenaar|eerste eigenaar)/i,name:null,level:'green',why:'Eerste eigenaar genoemd.',impact:100},
+ {re:/(rookvrij|niet in gerookt)/i,name:null,level:'green',why:'Rookvrij interieur genoemd.',impact:50},
+ {re:/(trekhaak)/i,name:null,level:'green',why:'Trekhaak aanwezig.',impact:100},
+ {re:/(parkeersensoren|camera achter)/i,name:null,level:'green',why:'Parkeerhulp aanwezig.',impact:75}
 ];
-let findings=[];
-function analyseerAdvertentie(){
- let t=$('advertentie').value.trim();findings=[];
- if(!t){$('analyseResultaat').textContent='Plak eerst de advertentietekst.';return}
- let km=t.match(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,6})\s*(?:km|kilometer)/i);if(km&&!$('km').value)$('km').value=km[1].replace(/\D/g,'');
- let price=t.match(/(?:€|eur)\s*([\d.]+)/i);if(price&&!$('vraag').value)$('vraag').value=price[1].replace(/\D/g,'');
- rules.forEach(r=>{if(r.re.test(t)){findings.push(r);if(r.name)setCost(r.name,true)}});
- if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value)&&/(stuur|klonk|tik|speling)/i.test(t)){setCost('Stuurhuis / stuurkolom verdacht',true);findings.push({level:'red',why:'Bij deze Kia Ceed wordt een stuur- of spelingklacht genoemd.'})}
- $('analyseResultaat').innerHTML=findings.length?findings.map(f=>`<span class="pill ${f.level}">${f.why}</span>`).join(''):'Geen duidelijke kosten- of risicosignalen gevonden. Controleer de tekst handmatig.';
- bereken();
-}
-function wisAnalyse(){findings=[];$('advertentie').value='';$('analyseResultaat').textContent='Analyse gewist.'}
+let findings=[],extracted={},adImpact=0;
+function extractAdvertentie(t){const get=(re,fn=x=>x)=>{const m=t.match(re);return m?fn(m):''};return{prijs:get(/(?:€|eur|vraagprijs[:\\s]*)\\s*([\\d.]+)/i,m=>m[1].replace(/\\D/g,'')),km:get(/(\\d{1,3}(?:[.\\s]\\d{3})+|\\d{5,6})\\s*(?:km|kilometer)/i,m=>m[1].replace(/\\D/g,'')),bouwjaar:get(/\\b(19\\d{2}|20[0-2]\\d)\\b/,m=>m[1]),apk:get(/apk.{0,20}(?:tot|geldig tot)?\\s*(\\d{1,2}[-\\/.]\\d{1,2}[-\\/.]\\d{2,4}|\\d{1,2}[-\\/.]\\d{4})/i,m=>m[1]),brandstof:get(/\\b(benzine|diesel|lpg|hybride|elektrisch|electric)\\b/i,m=>m[1]),transmissie:get(/\\b(automaat|automatisch|handgeschakeld|manual|schakel)\\b/i,m=>m[1]),deuren:get(/\\b([2345])[- ]?deurs?\\b/i,m=>m[1]),zitplaatsen:get(/\\b([234567])\\s*(?:zitplaatsen|persoons)\\b/i,m=>m[1]),eigenaren:get(/\\b([1-9])\\s*(?:eigenaren|eigenaars)\\b/i,m=>m[1])}}
+function analyseerAdvertentie(){let t=$('advertentie').value.trim();findings=[];adImpact=0;extracted={};if(!t){$('analyseSamenvatting').innerHTML='<span class="small">Plak eerst de advertentietekst.</span>';return}extracted=extractAdvertentie(t);if(extracted.km&&!$('km').value)$('km').value=extracted.km;if(extracted.prijs&&!$('vraag').value)$('vraag').value=extracted.prijs;adRules.forEach(r=>{if(r.re.test(t)){findings.push(r);adImpact+=r.impact||0;if(r.name)setCost(r.name,true)}});$('adcorrectie').value=Math.round(adImpact/50)*50;const gegevens=Object.entries(extracted).filter(([,v])=>v);$('analyseSamenvatting').innerHTML=`<b>Analyse gereed.</b> ${findings.length} relevante signalen gevonden.`;$('analyseGegevens').innerHTML=gegevens.length?'<h3>Uit de advertentie gehaald</h3>'+gegevens.map(([k,v])=>`<div class="row"><span>${k}</span><strong>${v}</strong></div>`).join(''):'<div class="small">Geen vaste voertuiggegevens betrouwbaar uit de tekst gehaald.</div>';const plus=findings.filter(f=>f.level==='green'),risk=findings.filter(f=>f.level!=='green');$('analysePlus').innerHTML=plus.length?'<h3>Pluspunten</h3>'+plus.map(f=>`<span class="pill green">${f.why}</span>`).join(''):'';$('analyseRisico').innerHTML=risk.length?'<h3>Risico’s en aandachtspunten</h3>'+risk.map(f=>`<span class="pill ${f.level}">${f.why}</span>`).join(''):'<h3>Risico’s</h3><div class="small">Geen duidelijke rode vlaggen gevonden.</div>';const missing=[];if(!extracted.apk&&!$('apk').value)missing.push('APK-datum');if(!/onderhoudsboek|historie|dealer onderhouden|facturen/i.test(t))missing.push('onderhoudshistorie');if(!/distributie|ketting/i.test(t))missing.push('distributie');if(!/airco/i.test(t))missing.push('werking airco');if(!/banden/i.test(t))missing.push('staat banden');if(!/rem/i.test(t))missing.push('staat remmen');if(!/storingslamp|motorlamp|geen storingen/i.test(t))missing.push('storingslampjes');$('analyseOntbreekt').innerHTML=missing.length?'<h3>Ontbrekende informatie</h3><div class="small">'+missing.join(', ')+'</div>':'';$('analysePrijs').innerHTML=`<h3>Prijsaanpassing uit advertentie</h3><div class="row"><span>Netto advertentiecorrectie</span><strong>${adImpact>=0?'+ ':''}${euro(adImpact)}</strong></div><div class="small">Dit bedrag is gebaseerd op herkende pluspunten en risico’s en blijft handmatig aanpasbaar.</div>`;bereken()}
+function wisAnalyse(){findings=[];extracted={};adImpact=0;$('advertentie').value='';$('adcorrectie').value=0;['analyseSamenvatting','analyseGegevens','analysePlus','analyseRisico','analyseOntbreekt','analysePrijs'].forEach(id=>$(id).innerHTML='');bereken()}
 function topReasons(){
  let ds=deductions().sort((a,b)=>b.value-a.value).slice(0,3);
  return ds.map(x=>x.name.toLowerCase());
