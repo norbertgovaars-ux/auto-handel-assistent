@@ -7,7 +7,7 @@
 <meta name="description" content="Auto Handel Assistent: advertentieanalyse, RDW, foto's, marktwaarde en bodbericht.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Auto Handel Assistent v7</title>
+<title>Auto Handel Assistent v8</title>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b;--blue:#1d4ed8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px Arial;color:var(--ink)}
@@ -32,20 +32,22 @@ details summary{font-weight:800;cursor:pointer}.saved{border:1px solid var(--lin
 <body>
 <main>
 <div class="top">
-<h1>Auto Handel Assistent v7</h1>
-<div class="sub">Open de advertentie, plak de tekst uit het klembord en laat de app direct analyseren.</div>
+<h1>Auto Handel Assistent v8</h1>
+<div class="sub">Plak een advertentielink en probeer hem direct te analyseren. Tekst plakken blijft als betrouwbare terugval.</div>
 </div>
 
 <section class="card">
 <h2>1. Advertentie invoeren</h2>
 <label>Link naar advertentie</label>
 <input id="adlink" type="url" placeholder="https://www.marktplaats.nl/...">
+<button class="btn good" onclick="analyseerLink()">Analyseer auto uit link (proef)</button>
 <div class="actions">
 <button class="btn blue" onclick="openAdvertentie()">Open advertentie in Chrome</button>
 <button class="btn alt" onclick="plakLink()">Plak link uit klembord</button>
 </div>
+<div id="linkAnalyseStatus" class="small" style="margin-top:8px"></div>
 <div id="linkStatus" class="small" style="margin-top:8px"></div><div class="notice" style="margin-top:10px">
-De betrouwbare gratis werkwijze: open de advertentie in Chrome, kopieer de advertentietekst en druk daarna op <b>Plak tekst en analyseer direct</b>. De app vult gevonden gegevens in, zoekt een kenteken en haalt daarna automatisch RDW op.
+De knop <b>Analyseer auto uit link</b> probeert de pagina via een openbare reader uit te lezen. Dit is experimenteel en kan door Marktplaats of de reader worden geblokkeerd. Als dat gebeurt, gebruik je <b>Open advertentie in Chrome</b> en daarna <b>Plak tekst en analyseer direct</b>.
 </div>
 
 <label>Advertentietekst</label>
@@ -195,6 +197,51 @@ function normaliseerLink(u){
     return '';
   }
 }
+
+function stripTracking(u){
+  try{
+    const x=new URL(u);
+    ['utm_source','utm_content','utm_medium','utm_campaign','utm_term'].forEach(k=>x.searchParams.delete(k));
+    return x.href;
+  }catch(e){return u}
+}
+function markdownNaarTekst(md){
+  return (md||'')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g,' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g,'$1')
+    .replace(/^#{1,6}\s+/gm,'')
+    .replace(/[*_`>|]/g,' ')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+async function analyseerLink(){
+  const status=$('linkAnalyseStatus');
+  let u=normaliseerLink($('adlink').value);
+  if(!u){status.textContent='Vul eerst een geldige advertentielink in.';return}
+  u=stripTracking(u);
+  $('adlink').value=u;
+  status.textContent='Advertentie wordt opgehaald en uitgelezen…';
+  $('analyseSamenvatting').innerHTML='<span class="pill orange">Linkanalyse bezig…</span>';
+  try{
+    const reader='https://r.jina.ai/'+u;
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),20000);
+    const res=await fetch(reader,{headers:{'Accept':'text/plain'},signal:controller.signal,cache:'no-store'});
+    clearTimeout(timer);
+    if(!res.ok)throw new Error('Reader gaf foutcode '+res.status);
+    const raw=await res.text();
+    const tekst=markdownNaarTekst(raw);
+    if(tekst.length<100)throw new Error('Te weinig advertentie-informatie ontvangen');
+    $('advertentie').value=tekst.slice(0,30000);
+    status.textContent=`Advertentie opgehaald (${tekst.length.toLocaleString('nl-NL')} tekens). Analyse wordt uitgevoerd…`;
+    await analyseerAdvertentie();
+    status.textContent='Advertentie uit de link opgehaald en geanalyseerd.';
+  }catch(e){
+    status.textContent='Automatisch uitlezen niet gelukt: '+(e.name==='AbortError'?'time-out':e.message)+'. Open de advertentie en gebruik daarna “Plak tekst en analyseer direct”.';
+    $('analyseSamenvatting').innerHTML='<span class="pill orange">Linkanalyse geblokkeerd; gebruik de tekst-terugval.</span>';
+  }
+}
+
 function openAdvertentie(){
   const u=normaliseerLink($('adlink').value);
   if(!u)return;
@@ -253,7 +300,8 @@ let findings=[];
 async function analyseerAdvertentie(){
  let t=$('advertentie').value.trim();findings=[];
  if(!t){$('analyseSamenvatting').innerHTML='Plak eerst tekst.';return}
- let km=t.match(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,6})\s*(?:km|kilometer)/i),
+ let titel=t.match(/(?:^|\n)([^\n]{8,90}(?:19\d{2}|20[0-2]\d)[^\n]*)/i),
+     km=t.match(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,6})\s*(?:km|kilometer)/i),
      pr=t.match(/(?:€|eur|vraagprijs[:\s]*)\s*([\d.]+)/i),
      jaar=t.match(/\b(19\d{2}|20[0-2]\d)\b/),
      fuel=t.match(/\b(benzine|diesel|lpg|hybride|elektrisch)\b/i),
@@ -265,6 +313,7 @@ if(jaar&&!$('jaar').value)$('jaar').value=jaar[1];
 if(fuel&&!$('brandstof').value)$('brandstof').value=fuel[1];
 if(kt)$('kenteken').value=clean(kt[1]);
 let impact=0;rules.forEach(([re,name,level,why,val])=>{if(re.test(t)){findings.push({level,why,val});impact+=val;if(name)setCost(name,true)}});$('adcorrectie').value=Math.round(impact/50)*50;$('analyseSamenvatting').innerHTML=`<b>${findings.length} signalen gevonden.</b>`;$('analysePlus').innerHTML=findings.filter(x=>x.level==='green').map(x=>`<span class="pill green">${x.why}</span>`).join('');$('analyseRisico').innerHTML=findings.filter(x=>x.level!=='green').map(x=>`<span class="pill ${x.level}">${x.why}</span>`).join('');let miss=[];if(!/apk/i.test(t))miss.push('APK');if(!/onderhoud|historie|factuur/i.test(t))miss.push('onderhoud');if(!/distributie|ketting/i.test(t))miss.push('distributie');if(!/airco/i.test(t))miss.push('airco');$('analyseOntbreekt').innerHTML=miss.length?`<h3>Ontbreekt</h3><div class="small">${miss.join(', ')}</div>`:'';$('analyseGegevens').innerHTML='<h3>Automatisch gevonden</h3>'+
+  `<div class="row"><span>Titel</span><strong>${titel?titel[1].trim().slice(0,80):'Niet gevonden'}</strong></div>`+
   `<div class="row"><span>Kilometerstand</span><strong>${km?Number(km[1].replace(/\D/g,'')).toLocaleString('nl-NL')+' km':'Niet gevonden'}</strong></div>`+
   `<div class="row"><span>Vraagprijs</span><strong>${pr?euro(pr[1].replace(/\D/g,'')):'Niet gevonden'}</strong></div>`+
   `<div class="row"><span>Bouwjaar</span><strong>${jaar?jaar[1]:'Niet gevonden'}</strong></div>`+
@@ -330,7 +379,7 @@ $('advies').innerHTML=!ref?'<b>Vul RDW en kilometerstand in.</b>':q&&q<=max?`<b 
 function maakBericht(){let bid=num('berichtbod'),rs=deductions().sort((a,b)=>b.value-a.value).slice(0,3).map(x=>x.name.toLowerCase()),stijl=$('stijl').value,intro=stijl==='direct'?'Goedendag, ik heb de auto doorgerekend op basis van de advertentie en de voertuiggegevens.':stijl==='snel'?'Goedendag, ik heb serieuze interesse en kan snel handelen.':stijl==='laatste'?'Goedendag, ik heb alles nog één keer zorgvuldig doorgerekend.':'Goedendag, bedankt voor de informatie over de auto. Ik heb de auto rustig doorgerekend.',why=rs.length?` Ik moet rekening houden met ${rs.join(', ')} en met de kosten om de auto netjes in orde te maken.`:' Ik moet rekening houden met onderhoud, APK en mogelijke onverwachte kosten.',offer=stijl==='laatste'?` Mijn uiterste bod is daarom ${euro(bid)}.`:` Daarom kom ik uit op een verantwoord bod van ${euro(bid)}.`,close=stijl==='snel'?' Als dit akkoord is, kan ik op korte termijn langskomen en direct betalen.':' Als dit bespreekbaar is, hoor ik het graag.';$('bodbericht').value=intro+why+offer+close}
 async function kopieerBericht(){await navigator.clipboard.writeText($('bodbericht').value);$('copyStatus').textContent='Tekst gekopieerd.'}function openWhatsApp(){if(!$('bodbericht').value)maakBericht();window.open('https://wa.me/?text='+encodeURIComponent($('bodbericht').value),'_blank')}
 function maakVragen(){let t=$('advertentie').value.toLowerCase(),q=[];if(!/distributie|ketting/.test(t))q.push('Wanneer is de distributie vervangen of gecontroleerd?');if(!/airco/.test(t))q.push('Werkt de airco goed en wordt hij koud?');if(!/onderhoud|historie|factuur/.test(t))q.push('Zijn onderhoudsboekjes en facturen aanwezig?');if(!/apk/.test(t))q.push('Tot wanneer is de APK geldig?');q.push('Branden er waarschuwingslampjes?','Zijn er lekkages, bijgeluiden, schade of andere gebreken?');if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value))q.push('Is er speling of een tikkend geluid in stuurhuis of stuurkolom?');$('vragen').value=q.map((x,i)=>`${i+1}. ${x}`).join('\n')}
-function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v7')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v7',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v7')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
+function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v8')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v8',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v8')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
 document.querySelectorAll('input,textarea,select').forEach(x=>x.addEventListener('input',bereken));$('kenteken').addEventListener('keydown',e=>{if(e.key==='Enter')haalRDW()});bereken();toon();if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 </body>
