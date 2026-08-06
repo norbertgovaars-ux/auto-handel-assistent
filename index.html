@@ -7,7 +7,7 @@
 <meta name="description" content="Auto Handel Assistent: advertentieanalyse, RDW, foto's, marktwaarde en bodbericht.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Auto Handel Assistent v15</title>
+<title>Auto Handel Assistent v15.1</title>
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--good:#166534;--warn:#92400e;--bad:#991b1b;--blue:#1d4ed8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px Arial;color:var(--ink)}
@@ -35,7 +35,7 @@ details summary{font-weight:800;cursor:pointer}.saved{border:1px solid var(--lin
 <body>
 <main>
 <div class="top">
-<h1>Auto Handel Assistent v15</h1>
+<h1>Auto Handel Assistent v15.1</h1>
 <div class="sub">Nieuwe rustige workflow: vraagprijs, kilometerstand, advertentielink, kenteken en één analyseknop.</div>
 </div>
 
@@ -345,14 +345,26 @@ async function startAnalyse(){
  if(!km){status.textContent='Vul daarna de kilometerstand in.';$('km').focus();return}
  $('vraagBron').value=$('vraagBron').value||'Handmatig bevestigd';
  status.textContent='Analyse gestart…';
+ let linkGelukt=false;
+ if(link){
+   try{await analyseerLink();linkGelukt=true}catch(e){
+     status.textContent='Linkanalyse niet beschikbaar. De app rekent verder met de handmatige gegevens.';
+   }
+ }
+ if($('advertentie').value.trim()){
+   try{await analyseerAdvertentie()}catch(e){}
+ }
+ if(kent && (!$('merk').value || !$('model').value)){
+   try{await haalRDW()}catch(e){}
+ }
  try{
-   if(link){await analyseerLink()}
-   else if($('advertentie').value.trim()){await analyseerAdvertentie()}
-   if(kent && (!$('merk').value || !$('model').value)){await haalRDW()}
    bereken();
-   document.getElementById('aankoopadvies').scrollIntoView({behavior:'smooth'});
-   status.textContent='Analyse gereed. Controleer het aankoopadvies hieronder.';
- }catch(e){status.textContent='Analyse deels uitgevoerd: '+e.message;bereken()}
+   const target=document.getElementById('aankoopadvies');
+   if(target) target.scrollIntoView({behavior:'smooth'});
+   status.textContent=linkGelukt?'Analyse gereed.':'Analyse gereed met handmatige gegevens.';
+ }catch(e){
+   status.textContent='Berekening kon niet volledig worden uitgevoerd: '+e.message;
+ }
 }
 async function analyseerLink(){
   const status=$('linkAnalyseStatus');
@@ -535,6 +547,39 @@ async function zoekVergelijkbaren(){
  }catch(e){box.innerHTML=`<span class="pill orange">Automatisch zoeken niet gelukt: ${e.message}. Vul minimaal drie vergelijkbare auto's handmatig in.</span>`}
 }
 function mediaan(values){const a=values.filter(v=>v>0).sort((x,y)=>x-y);if(!a.length)return 0;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+
+function benchmarkResultaten(){
+  if(typeof benchmarkData==='undefined' || !Array.isArray(benchmarkData)) return [];
+  return benchmarkData.map((b,i)=>{
+    const prijs=Number(b.prijs)||0;
+    const jaar=Number(b.jaar)||0;
+    const km=Number(b.km)||0;
+    const automaat=b.automaat!==false;
+    let corrected=prijs;
+    const reasons=[];
+    if(prijs && jaar && num('jaar')){
+      const c=(num('jaar')-jaar)*175;
+      corrected+=c;
+      if(c) reasons.push(`bouwjaar ${c>=0?'+':''}${euro(c)}`);
+    }
+    if(prijs && km && num('km')){
+      const c=Math.round((((km-num('km'))/10000)*125)/25)*25;
+      corrected+=c;
+      if(Math.abs(km-num('km'))>=5000) reasons.push(`km ${c>=0?'+':''}${euro(c)}`);
+    }
+    if(!automaat){
+      corrected-=500;
+      reasons.push('geen automaat - '+euro(500));
+    }
+    const bruikbaar=!!(prijs && jaar && km && automaat);
+    const el=$('benchExplain'+i);
+    if(el) el.textContent=prijs
+      ? `Gecorrigeerde waarde ${euro(Math.max(0,corrected))}${reasons.length?' · '+reasons.join(' · '):''}`
+      : 'Nog niet compleet.';
+    return {...b,corrected:Math.max(0,corrected),bruikbaar,reasons};
+  }).filter(x=>x.bruikbaar);
+}
+
 function vergelijkingsWaarde(){
  const rows=benchmarkResultaten(),vals=rows.map(x=>x.corrected),med=mediaan(vals),priv=rows.length>=3?Math.round(med*(1-num('dealerCorrectie')/100)/50)*50:0;
  $('benchmarkAantal').textContent=rows.length;
@@ -671,7 +716,7 @@ async function kopieerBericht(){await navigator.clipboard.writeText($('bodberich
 function maakVragen(){let t=$('advertentie').value.toLowerCase(),q=[];if(!/distributie|ketting/.test(t))q.push('Wanneer is de distributie vervangen of gecontroleerd?');if(!/airco/.test(t))q.push('Werkt de airco goed en wordt hij koud?');if(!/onderhoud|historie|factuur/.test(t))q.push('Zijn onderhoudsboekjes en facturen aanwezig?');if(!/apk/.test(t))q.push('Tot wanneer is de APK geldig?');if(!/sleutel/i.test(t))q.push('Zijn er één of twee originele sleutels aanwezig?');
 if(!/winterband|winterwiel/i.test(t))q.push('Is er een extra set winterbanden of wielen aanwezig?');
 q.push('Zijn er nog accessoires zoals dakdragers, skibox, reservewiel of andere onderdelen inbegrepen?','Branden er waarschuwingslampjes?','Zijn er lekkages, bijgeluiden, schade of andere gebreken?');if(/kia/i.test($('merk').value)&&/ceed/i.test($('model').value))q.push('Is er speling of een tikkend geluid in stuurhuis of stuurkolom?');$('vragen').value=q.map((x,i)=>`${i+1}. ${x}`).join('\n')}
-function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v15')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v15',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v15')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
+function bewaar(){let a=JSON.parse(localStorage.getItem('autos-v15-1')||'[]');a.unshift({datum:new Date().toLocaleDateString('nl-NL'),kenteken:$('kenteken').value,auto:`${$('merk').value} ${$('model').value}`,km:num('km'),max:$('maxbod').textContent});localStorage.setItem('autos-v15-1',JSON.stringify(a));toon()}function toon(){let a=JSON.parse(localStorage.getItem('autos-v15-1')||'[]');$('saved').innerHTML=a.map(x=>`<div class="saved"><b>${x.auto} · ${x.kenteken}</b><div class="small">${x.datum} · ${Number(x.km).toLocaleString('nl-NL')} km · max ${x.max}</div></div>`).join('')}
 document.querySelectorAll('input,textarea,select').forEach(x=>x.addEventListener('input',bereken));$('kenteken').addEventListener('keydown',e=>{if(e.key==='Enter')haalRDW()});bereken();toon();if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 </body>
