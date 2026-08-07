@@ -18,3 +18,10 @@ label{font-weight:700;font-size:13px;display:block}input,textarea,select{width:1
 .source-tag{display:inline-block;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:700;background:#e5e7eb;margin-right:4px}
 .confidence-high{color:var(--green)}.confidence-medium{color:var(--orange)}.confidence-low{color:var(--red)}
 @media(max-width:760px){.analysis-grid{grid-template-columns:1fr}}
+
+.auto-found{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.auto-found>div{border:1px solid var(--line);border-radius:11px;padding:10px;background:#f9fafb}
+.auto-found span{display:block;color:var(--muted);font-size:12px}.auto-found strong{display:block;margin-top:3px;font-size:15px}
+.manual-core{margin:10px 0}.manual-core summary{color:var(--blue)}
+.status.good{background:#ecfdf5;color:#166534}.status.warn{background:#fffbeb;color:#92400e}
+@media(max-width:760px){.auto-found{grid-template-columns:1fr 1fr}}

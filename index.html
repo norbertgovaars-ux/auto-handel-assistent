@@ -4,44 +4,53 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="Auto Handel Assistent 2.2">
+  <meta name="description" content="Auto Handel Assistent 3.0">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="app.css">
-  <link rel="icon" href="assets/icon-192.png">
-  <title>Auto Handel Assistent 2.2</title>
+  <link rel="icon" href="icon-192.png">
+  <title>Auto Handel Assistent 3.0</title>
 </head>
 <body>
 <main>
   <header class="hero">
     <div>
-      <h1>Auto Handel Assistent 2.2</h1>
-      <p>Vraagprijs en kilometerstand eerst. Daarna RDW, biedingen, benchmarks en aankoopadvies.</p>
+      <h1>Auto Handel Assistent 3.0</h1>
+      <p>Deel of plak een advertentie. De app probeert vraagprijs, kilometerstand en kenteken zelf te vinden en haalt daarna RDW op.</p>
     </div>
     <button id="resetBtn" class="btn ghost">Nieuwe auto</button>
   </header>
 
   <section class="card start-card">
     <h2>1. Auto invoeren</h2>
-    <div class="grid two">
-      <label>Vraagprijs (€)
-        <input id="askingPrice" class="required" type="number" inputmode="numeric" placeholder="5000">
-      </label>
-      <label>Kilometerstand
-        <input id="mileage" class="required" type="number" inputmode="numeric" placeholder="185000">
-      </label>
-    </div>
     <label>Advertentielink
-      <input id="adUrl" type="url" placeholder="https://www.marktplaats.nl/...">
+      <input id="adUrl" type="url" placeholder="Deel vanuit Marktplaats of plak de link">
     </label>
-    <div class="grid two">
-      <label>Kenteken
-        <input id="plate" autocapitalize="characters" placeholder="59-LFG-9">
-      </label>
-      <label>Bron vraagprijs
-        <input id="priceSource" readonly placeholder="Handmatig of advertentie">
-      </label>
+    <button id="analyzeBtn" class="btn primary big">Analyseer advertentie</button>
+    <div id="autoFound" class="auto-found">
+      <div><span>Vraagprijs</span><strong id="foundPrice">Nog zoeken</strong></div>
+      <div><span>Kilometerstand</span><strong id="foundKm">Nog zoeken</strong></div>
+      <div><span>Kenteken</span><strong id="foundPlate">Nog zoeken</strong></div>
+      <div><span>RDW</span><strong id="foundRdw">Nog niet</strong></div>
     </div>
-    <button id="analyzeBtn" class="btn primary big">Analyseer auto</button>
+    <details class="manual-core">
+      <summary>Controleer of corrigeer basisgegevens</summary>
+      <div class="grid two">
+        <label>Vraagprijs (€)
+          <input id="askingPrice" type="number" inputmode="numeric" placeholder="Automatisch zoeken">
+        </label>
+        <label>Kilometerstand
+          <input id="mileage" type="number" inputmode="numeric" placeholder="Automatisch zoeken">
+        </label>
+      </div>
+      <div class="grid two">
+        <label>Kenteken
+          <input id="plate" autocapitalize="characters" placeholder="Automatisch zoeken">
+        </label>
+        <label>Bron vraagprijs
+          <input id="priceSource" readonly placeholder="Automatisch / handmatig">
+        </label>
+      </div>
+    </details>
     <div class="grid two">
       <button id="openAdBtn" class="btn secondary">Open advertentie</button>
       <button id="pasteLinkBtn" class="btn ghost">Plak link</button>
@@ -68,7 +77,7 @@
       <div class="kpi"><span>Snelle verkoopwaarde</span><strong id="kpiQuick">€ 0</strong></div>
       <div class="kpi"><span>Openingsbod</span><strong id="kpiOpenBid">€ 0</strong></div>
       <div class="kpi"><span>Verwachte winst</span><strong id="kpiProfit">€ 0</strong></div>
-      <div class="kpi"><span>Betrouwbaarheid</span><strong id="kpiConfidence">0 / 100</strong></div>
+      <div class="kpi"><span>Betrouwbaarheid</span><strong id="kpiConfidence">0 / 100</strong></div><div class="kpi highlight"><span>Handelskans</span><strong id="kpiDealScore">0 / 100</strong></div>
     </div>
     <div id="dashboardSummary" class="explanation"></div>
   </section>
@@ -110,7 +119,7 @@
     <h2>4. Benchmarkauto's</h2>
     <p class="muted">Minimaal drie bruikbare auto's. Bij voorkeur zelfde generatie, motor, transmissie en carrosserie.</p>
     <div id="benchmarkList"></div>
-    <button id="addBenchmarkBtn" class="btn ghost">Benchmark toevoegen</button>
+    <div class="grid two"><button id="autoBenchmarkBtn" class="btn secondary">Probeer 3 benchmarks automatisch</button><button id="addBenchmarkBtn" class="btn ghost">Benchmark toevoegen</button></div><div id="benchmarkStatus" class="status">Nog niet gezocht.</div>
     <div class="rows">
       <div><span>Bruikbare benchmarks</span><strong id="benchmarkCount">0</strong></div>
       <div><span>Mediaan gecorrigeerde prijs</span><strong id="benchmarkMedian">€ 0</strong></div>
@@ -128,7 +137,9 @@
     <div id="missingInfo" class="analysis-list"></div>
     <div class="rows">
       <div><span>Pluscorrecties</span><strong id="detectedPlusTotal">€ 0</strong></div>
-      <div><span>Minuscorrecties</span><strong id="detectedMinusTotal">€ 0</strong></div>
+      <div><span>Bevestigde minpunten</span><strong id="detectedMinusConfirmed">€ 0</strong></div>
+      <div><span>Onzekerheden meegenomen</span><strong id="detectedMissingTotal">€ 0</strong></div>
+      <div><span>Totale mincorrecties</span><strong id="detectedMinusTotal">€ 0</strong></div>
       <div><span>Netto advertentiecorrectie</span><strong id="detectedNetTotal">€ 0</strong></div>
     </div>
   </section>

@@ -32,14 +32,70 @@ const missingRules=[
 ['tyresUnknown','Bandenprofiel niet genoemd',250,/banden|profiel/i,'Hoeveel millimeter profiel hebben de banden?'],
 ['apkUnknown','APK niet genoemd',200,/apk/i,'Tot wanneer loopt de APK en waren er adviespunten?']
 ];
+
+function normalizeText(text){
+  return String(text||'')
+    .replace(/\u00a0/g,' ')
+    .replace(/[ \t]+/g,' ')
+    .replace(/\r/g,'');
+}
+function bestPriceFromText(t){
+  const candidates=[],lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const push=(raw,score,source)=>{
+    const value=money(raw);
+    if(value>=300 && value<=100000) candidates.push({value,score,source});
+  };
+  lines.forEach((line,index)=>{
+    let m=line.match(/(?:vraagprijs|verkoopprijs|prijs|price)\s*[:\-]?\s*(?:€|eur)?\s*([\d.]{3,7})/i);
+    if(m)push(m[1],120,`advertentie: ${line.slice(0,100)}`);
+    m=line.match(/(?:€|EUR)\s*([\d.]{3,7})(?:[,\-]{0,2})?/i);
+    if(m)push(m[1],105-index*.05,`advertentie: ${line.slice(0,100)}`);
+    m=line.match(/^([\d.]{1,3}\.\d{3}|[1-9]\d{3,4})\s*(?:euro|EUR)$/i);
+    if(m)push(m[1],95-index*.05,`advertentie: ${line.slice(0,100)}`);
+  });
+  return candidates.sort((a,b)=>b.score-a.score)[0]||null;
+}
+function findMileage(t){
+  const patterns=[
+    /(?:kilometerstand|km\s*stand|mileage)\s*[:\-]?\s*(\d{1,3}(?:[.\s]\d{3})+|\d{4,6})/i,
+    /(\d{1,3}(?:[.\s]\d{3})+|\d{4,6})\s*(?:km|kilometer)\b/i
+  ];
+  for(const p of patterns){const m=t.match(p);if(m){const v=money(m[1]);if(v>=1000&&v<=900000)return v}}
+  return 0;
+}
+function findPlate(t){
+  const cleaned=t.toUpperCase();
+  const patterns=[
+    /\b\d{2}-?[A-Z]{3}-?\d\b/,
+    /\b[A-Z]{2}-?\d{2}-?[A-Z]{2}\b/,
+    /\b\d{2}-?[A-Z]{2}-?[A-Z]{2}\b/,
+    /\b[A-Z]{2}-?[A-Z]{2}-?\d{2}\b/,
+    /\b\d{2}-?\d{2}-?[A-Z]{2}\b/,
+    /\b[A-Z]{2}-?\d{2}-?\d{2}\b/,
+    /\b\d{2}-?[A-Z]{2}-?\d{2}\b/,
+    /\b[A-Z]{2}-?\d{3}-?[A-Z]\b/
+  ];
+  for(const p of patterns){const m=cleaned.match(p);if(m)return cleanPlate(m[0])}
+  return '';
+}
+function findYear(t){
+  const m=t.match(/(?:bouwjaar|jaar|eerste toelating)\s*[:\-]?\s*((?:19|20)\d{2})/i) || t.match(/\b((?:19|20)\d{2})\b/);
+  return m?Number(m[1]):0;
+}
 export function parseAdvertisement(text){
- const t=String(text||'').trim(),lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean),prices=[];
- lines.forEach((line,index)=>{let m=line.match(/(?:vraagprijs|verkoopprijs|prijs)\s*[:\-]?\s*(?:€|eur)?\s*([\d.]{3,7})/i);if(m)prices.push({value:money(m[1]),score:100,source:`advertentie: ${line.slice(0,90)}`});m=line.match(/^(?:€|eur)\s*([\d.]{3,7})/i);if(m)prices.push({value:money(m[1]),score:90-index*.2,source:`advertentie: ${line.slice(0,90)}`})});
- const best=prices.filter(x=>x.value>=300&&x.value<=100000).sort((a,b)=>b.score-a.score)[0];
- const km=t.match(/(\d{1,3}(?:[.\s]\d{3})+|\d{5,6})\s*(?:km|kilometer)/i);
- const plate=t.match(/\b(?:[0-9]{2}-?[A-Z]{3}-?[0-9]|[A-Z]{2}-?[0-9]{2}-?[A-Z]{2}|[0-9]{2}-?[A-Z]{2}-?[A-Z]{2}|[A-Z]{2}-?[A-Z]{2}-?[0-9]{2})\b/i);
+ const t=normalizeText(text),best=bestPriceFromText(t);
  const saved=t.match(/(\d+)\s*x?\s*bewaard/i),viewed=t.match(/(\d+)\s*x?\s*bekeken/i);
  const detected=rules.filter(r=>r[4].test(t)).map(r=>({id:r[0],label:r[1],type:r[2],value:r[3],source:'advertentie',confidence:r[5]}));
  const missing=missingRules.filter(r=>!r[3].test(t)).map(r=>({id:r[0],label:r[1],type:'missing',value:r[2],source:'ontbreekt in advertentie',confidence:65,question:r[4]}));
- return {price:best?.value||0,priceSource:best?.source||'Niet betrouwbaar gevonden',mileage:km?money(km[1]):0,plate:plate?cleanPlate(plate[0]):'',saved:saved?Number(saved[1]):0,viewed:viewed?Number(viewed[1]):0,detected,missing};
+ return {
+   price:best?.value||0,
+   priceSource:best?.source||'Niet betrouwbaar gevonden',
+   mileage:findMileage(t),
+   plate:findPlate(t),
+   year:findYear(t),
+   saved:saved?Number(saved[1]):0,
+   viewed:viewed?Number(viewed[1]):0,
+   detected,missing,
+   rawLength:t.length
+ };
 }

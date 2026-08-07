@@ -1,4 +1,4 @@
-const CACHE='auto-handel-assistent-2-2-share-20260807-2';
+const CACHE='auto-handel-assistent-3-0-20260807-1';
 const ASSETS=['./','./index.html','./app.css','./app.js','./utils.js','./rdw.js','./parser.js','./valuation.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))])));

@@ -1,14 +1,21 @@
-AUTO HANDEL ASSISTENT 2.2 — DELEN VANUIT MARKTPLAATS
+AUTO HANDEL ASSISTENT 3.0
 
-Upload alle bestanden rechtstreeks naar de hoofdmap van GitHub en commit.
+Upload ALLE bestanden rechtstreeks naar de hoofdmap van GitHub en Commit changes.
 
-Daarna:
-1. Wacht tot bovenaan de app 'Auto Handel Assistent 2.2' staat.
-2. Verwijder de geïnstalleerde Auto Handel Assistent één keer van je telefoon.
-3. Open de GitHub Pages-link opnieuw in Chrome.
-4. Kies 'App installeren' / 'Toevoegen aan startscherm'.
-5. Open Marktplaats > Delen > Apps.
-6. Kies Auto Handel.
-7. De gedeelde link wordt automatisch in de app ingevuld.
+Belangrijk:
+- app.js
+- parser.js
+- valuation.js
+- rdw.js
+- utils.js
+- app.css
+- index.html
+- manifest.webmanifest
+- service-worker.js
+- icon-192.png
+- icon-512.png
 
-Android registreert de deeloptie bij installatie, daarom is opnieuw installeren belangrijk.
+Na deployment moet bovenaan staan: Auto Handel Assistent 3.0.
+
+Voor de Android deeloptie is opnieuw installeren normaal NIET nodig als 2.2 al als deel-app werkt.
+Als Auto Handel niet meer in Delen staat: app eenmalig verwijderen en opnieuw installeren via Chrome.
