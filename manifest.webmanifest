@@ -1,6 +1,6 @@
 {
-  "name": "Auto Handel Assistent 2.1",
-  "short_name": "Auto Assistent",
+  "name": "Auto Handel Assistent 2.2",
+  "short_name": "Auto Handel",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -17,5 +17,15 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "./?share-target=1",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

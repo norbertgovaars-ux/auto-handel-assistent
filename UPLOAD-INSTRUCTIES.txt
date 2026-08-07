@@ -1,1 +1,14 @@
-Upload alle bestanden rechtstreeks naar de hoofdmap van GitHub. Geen mappen nodig. Na upload moet bovenaan staan: Auto Handel Assistent 2.1.
+AUTO HANDEL ASSISTENT 2.2 — DELEN VANUIT MARKTPLAATS
+
+Upload alle bestanden rechtstreeks naar de hoofdmap van GitHub en commit.
+
+Daarna:
+1. Wacht tot bovenaan de app 'Auto Handel Assistent 2.2' staat.
+2. Verwijder de geïnstalleerde Auto Handel Assistent één keer van je telefoon.
+3. Open de GitHub Pages-link opnieuw in Chrome.
+4. Kies 'App installeren' / 'Toevoegen aan startscherm'.
+5. Open Marktplaats > Delen > Apps.
+6. Kies Auto Handel.
+7. De gedeelde link wordt automatisch in de app ingevuld.
+
+Android registreert de deeloptie bij installatie, daarom is opnieuw installeren belangrijk.

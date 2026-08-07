@@ -7,6 +7,36 @@ import {costItems,extraItems,calculate,checkedTotal} from './valuation.js';
 let benchmarkIndex=0;
 let lastParsed={detected:[],missing:[]};
 
+
+function extractFirstUrl(value=''){
+  const match=String(value).match(/https?:\/\/[^\s]+/i);
+  return match ? match[0].replace(/[),.;]+$/,'') : '';
+}
+
+function receiveSharedAdvertisement(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('share-target')!=='1') return false;
+  const sharedTitle=params.get('title')||'';
+  const sharedText=params.get('text')||'';
+  const sharedUrl=params.get('url')||extractFirstUrl(sharedText);
+  const combined=[sharedTitle,sharedText].filter(Boolean).join('\n').trim();
+
+  if(sharedUrl) $('adUrl').value=sharedUrl;
+  if(combined){
+    $('adText').value=combined;
+    try{ applyParsed(parseAdvertisement(combined)); }catch(e){}
+  }
+
+  $('status').textContent=sharedUrl
+    ? 'Advertentie ontvangen via Delen. Controleer vraagprijs en kilometerstand en tik op Analyseer auto.'
+    : 'Gedeelde advertentietekst ontvangen. Controleer de gevonden gegevens.';
+
+  history.replaceState({}, document.title, './');
+  refresh();
+  setTimeout(()=>document.querySelector('.start-card')?.scrollIntoView({behavior:'smooth'}),100);
+  return true;
+}
+
 function renderChecks(id,items){
   $(id).innerHTML=items.map(([name,value])=>`
     <label class="check-item">
@@ -158,4 +188,5 @@ $('copyMessageBtn').addEventListener('click',async()=>{await navigator.clipboard
 $('resetBtn').addEventListener('click',reset);
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js');
+receiveSharedAdvertisement();
 refresh();
