@@ -1,0 +1,1 @@
+Upload alle bestanden rechtstreeks naar de hoofdmap van GitHub. Geen mappen nodig. Na upload moet bovenaan staan: Auto Handel Assistent 2.1.

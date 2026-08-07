@@ -47,9 +47,14 @@ function depreciationFloor(){
   return Math.max(500,Math.round(catalog*ageFactor*kmFactor/50)*50);
 }
 
+function detectedTotal(id){return [...document.querySelectorAll(`#${id} .analysis-item`)].reduce((s,row)=>s+Number(row.querySelector('input[type=number]')?.value||0),0)}
+function missingTotal(){return [...document.querySelectorAll('#missingInfo .analysis-item')].filter(row=>row.querySelector('input[type=checkbox]')?.checked).reduce((s,row)=>s+Number(row.querySelector('input[type=number]')?.value||0),0)}
 export function calculate(){
   const asking=number('askingPrice');
-  const repair=checkedTotal('costList');
+  const detectedPlus=detectedTotal('detectedPlus');
+  const detectedMinus=detectedTotal('detectedMinus');
+  const missingRisk=missingTotal();
+  const repair=checkedTotal('costList')+detectedMinus+missingRisk;
   const extras=Math.min(checkedTotal('extraList'),600);
   const profit=number('targetProfit');
   const fixed=number('fixedCosts');
@@ -67,7 +72,7 @@ export function calculate(){
   if(floor)sources.push({name:'Afschrijvingsondergrens',value:floor,weight:0.25});
   const totalWeight=sources.reduce((s,x)=>s+x.weight,0);
   let market=totalWeight?sources.reduce((s,x)=>s+x.value*x.weight,0)/totalWeight:0;
-  market=Math.round((market+extras)/50)*50;
+  market=Math.round((market+extras+detectedPlus)/50)*50;
   const quick=Math.round(market*(1-quickDiscount)/50)*50;
   const maxBid=Math.max(0,Math.round((quick-repair-fixed-profit)/50)*50);
   const openBid=Math.max(0,Math.round((maxBid*.90)/50)*50);
@@ -79,5 +84,5 @@ export function calculate(){
     else advice='OVERSLAAN';
   }
 
-  return {asking,repair,extras,profit,fixed,offerAvg,offerHigh,benchmarks,benchmarkMedian,floor,market,quick,maxBid,openBid,confidence,advice,sources,apkMonths:calculateApkMonths()};
+  return {asking,repair,extras,detectedPlus,detectedMinus,missingRisk,profit,fixed,offerAvg,offerHigh,benchmarks,benchmarkMedian,floor,market,quick,maxBid,openBid,confidence,advice,sources,apkMonths:calculateApkMonths()};
 }

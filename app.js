@@ -5,6 +5,7 @@ import {parseAdvertisement} from './parser.js';
 import {costItems,extraItems,calculate,checkedTotal} from './valuation.js';
 
 let benchmarkIndex=0;
+let lastParsed={detected:[],missing:[]};
 
 function renderChecks(id,items){
   $(id).innerHTML=items.map(([name,value])=>`
@@ -35,25 +36,24 @@ function addBenchmark(data={}){
   $('benchmarkList').appendChild(row);
 }
 
+
+function confidenceLabel(v){return v>=85?'<span class="confidence-high">hoog</span>':v>=65?'<span class="confidence-medium">gemiddeld</span>':'<span class="confidence-low">laag</span>'}
+function renderDetected(parsed){
+ lastParsed=parsed;
+ const plus=parsed.detected.filter(x=>x.type==='plus'),minus=parsed.detected.filter(x=>x.type==='minus');
+ const item=(x,kind)=>`<div class="analysis-item ${kind}"><div><strong>${x.label}</strong><div class="meta"><span class="source-tag">${x.source}</span> zekerheid ${confidenceLabel(x.confidence)}</div></div><input type="number" value="${x.value}"></div>`;
+ $('detectedPlus').innerHTML=plus.length?plus.map(x=>item(x,'plus')).join(''):'<div class="muted">Geen pluspunten gevonden.</div>';
+ $('detectedMinus').innerHTML=minus.length?minus.map(x=>item(x,'minus')).join(''):'<div class="muted">Geen minpunten gevonden.</div>';
+ $('missingInfo').innerHTML=parsed.missing.length?parsed.missing.map(x=>`<div class="analysis-item missing"><div><strong>${x.label}</strong><div class="meta">${x.question}<br><span class="source-tag">${x.source}</span> zekerheid ${confidenceLabel(x.confidence)}</div></div><div><label><input type="checkbox"> meenemen</label><input type="number" value="${x.value}"></div></div>`).join(''):'<div class="muted">Geen belangrijke ontbrekende informatie gevonden.</div>';
+ document.querySelectorAll('#detectedPlus input,#detectedMinus input,#missingInfo input').forEach(x=>x.addEventListener('input',refresh));
+}
+
 function applyParsed(parsed){
-  if(parsed.price&&!number('askingPrice')){
-    $('askingPrice').value=parsed.price;
-    $('priceSource').value=parsed.priceSource;
-  }
-  if(parsed.mileage&&!number('mileage'))$('mileage').value=parsed.mileage;
-  if(parsed.plate&&!$('plate').value)$('plate').value=parsed.plate;
-  const checks=[...document.querySelectorAll('#extraList .check-item')];
-  const select=(name,on)=>{const row=checks.find(r=>r.querySelector('span').textContent===name);if(row&&on)row.querySelector('input[type=checkbox]').checked=true};
-  select('Twee originele sleutels',parsed.flags.twoKeys);
-  select('Winterwielen',parsed.flags.winterWheels);
-  select('Trekhaak',parsed.flags.towbar);
-  select('Onderhoudsmap',parsed.flags.maintenance);
-  const costs=[...document.querySelectorAll('#costList .check-item')];
-  const cost=(name,on)=>{const row=costs.find(r=>r.querySelector('span').textContent===name);if(row&&on)row.querySelector('input[type=checkbox]').checked=true};
-  cost('Lak-/deukschade',parsed.flags.damage);
-  cost('Onderhoud achterstallig',!parsed.flags.maintenance);
-  cost('Distributieriem onbekend',!parsed.flags.belt);
-  $('status').textContent=`Advertentie geanalyseerd. ${parsed.saved?`${parsed.saved}× bewaard. `:''}${parsed.viewed?`${parsed.viewed}× bekeken.`:''}`;
+ if(parsed.price&&!number('askingPrice')){$('askingPrice').value=parsed.price;$('priceSource').value=parsed.priceSource}
+ if(parsed.mileage&&!number('mileage'))$('mileage').value=parsed.mileage;
+ if(parsed.plate&&!$('plate').value)$('plate').value=parsed.plate;
+ renderDetected(parsed);
+ $('status').textContent=`Advertentie geanalyseerd. ${parsed.detected.length} punten gevonden. ${parsed.missing.length} belangrijke zaken ontbreken.${parsed.saved?` ${parsed.saved}× bewaard.`:''}${parsed.viewed?` ${parsed.viewed}× bekeken.`:''}`;
 }
 
 async function analyze(){
@@ -76,6 +76,9 @@ function refresh(){
   $('benchmarkMedian').textContent=euro(r.benchmarkMedian);
   $('costTotal').textContent=euro(r.repair);
   $('extraTotal').textContent=euro(r.extras);
+  $('detectedPlusTotal').textContent=euro(r.detectedPlus);
+  $('detectedMinusTotal').textContent='- '+euro(r.detectedMinus);
+  $('detectedNetTotal').textContent=euro(r.detectedPlus-r.detectedMinus-r.missingRisk);
   $('kpiAsk').textContent=euro(r.asking);
   $('kpiAdvice').textContent=r.advice;
   $('kpiMaxBid').textContent=euro(r.maxBid);
@@ -93,6 +96,9 @@ function refresh(){
   $('valuationBreakdown').innerHTML=[
     ...r.sources.map(s=>`<div><span>${s.name}</span><strong>${euro(s.value)}</strong></div>`),
     `<div><span>Meerwaarde extra's</span><strong>${euro(r.extras)}</strong></div>`,
+    `<div><span>Pluscorrecties advertentie</span><strong>${euro(r.detectedPlus)}</strong></div>`,
+    `<div><span>Minpunten advertentie</span><strong>- ${euro(r.detectedMinus)}</strong></div>`,
+    `<div><span>Onzekerheidsreserve ontbrekende info</span><strong>- ${euro(r.missingRisk)}</strong></div>`,
     `<div><span>Snelle verkoopwaarde</span><strong>${euro(r.quick)}</strong></div>`,
     `<div><span>Herstel/risico</span><strong>- ${euro(r.repair)}</strong></div>`,
     `<div><span>Vaste kosten/buffer</span><strong>- ${euro(r.fixed)}</strong></div>`,
