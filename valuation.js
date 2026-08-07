@@ -76,7 +76,7 @@ export function calculate(){
   const quick=Math.round(market*(1-quickDiscount)/50)*50;
   const maxBid=Math.max(0,Math.round((quick-repair-fixed-profit)/50)*50);
   const openBid=Math.max(0,Math.round((maxBid*.90)/50)*50);
-  const confidence=clamp(Math.round(20+benchmarks.length*15+offers.length*8+(number('year')?10:0)+(number('mileage')?10:0)),0,100);
+  const confidence=clamp(Math.round(10+Math.min(45,benchmarks.length*15)+offers.length*8+(number('year')?8:0)+(number('mileage')?8:0)+($('plate')?.value?8:0)+($('brand')?.value?10:0)),0,100);
   let advice='ONVOLDOENDE DATA';
   if(market&&asking){
     if(asking<=maxBid)advice='KOPEN / DIRECT BELLEN';

@@ -1,4 +1,3 @@
-
 export const $ = id => document.getElementById(id);
 export const number = id => Number($(id)?.value || 0);
 export const euro = value => new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(value)||0);
@@ -10,3 +9,4 @@ export const median = values => {
   return a.length%2?a[m]:(a[m-1]+a[m])/2;
 };
 export const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+export const round50=v=>Math.round((Number(v)||0)/50)*50;

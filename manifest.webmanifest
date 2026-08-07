@@ -1,5 +1,5 @@
 {
-  "name": "Auto Handel Assistent 3.0",
+  "name": "Auto Handel Assistent 3.1",
   "short_name": "Auto Handel",
   "start_url": "./",
   "scope": "./",
@@ -28,5 +28,5 @@
       "url": "url"
     }
   },
-  "description": "Analyseer gedeelde autoadvertenties, RDW, marktwaarde en maximaal bod."
+  "description": "Auto-advertentie analyseren: vraagprijs, kilometerstand, kenteken, RDW, correcties, benchmarks en maximaal bod."
 }

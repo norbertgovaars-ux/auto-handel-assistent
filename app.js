@@ -79,10 +79,10 @@ function applyParsed(parsed,{overwrite=false}={}){
  $('status').textContent=`Advertentie geanalyseerd. ${parsed.detected.length} punten gevonden, ${parsed.missing.length} zaken nog te controleren.${parsed.saved?` ${parsed.saved}× bewaard.`:''}${parsed.viewed?` ${parsed.viewed}× bekeken.`:''}`;
 }
 function updateFoundSummary(){
- $('foundPrice').textContent=number('askingPrice')?euro(number('askingPrice')):'Niet gevonden';
- $('foundKm').textContent=number('mileage')?`${number('mileage').toLocaleString('nl-NL')} km`:'Niet gevonden';
- $('foundPlate').textContent=$('plate').value.trim()||'Niet gevonden';
- $('foundRdw').textContent=$('brand').value.trim()?`${$('brand').value} ${$('model').value}`.trim():'Nog niet';
+ $('foundPrice').textContent=number('askingPrice')?`✓ ${euro(number('askingPrice'))}`:'Niet gevonden';
+ $('foundKm').textContent=number('mileage')?`✓ ${number('mileage').toLocaleString('nl-NL')} km`:'Niet gevonden';
+ $('foundPlate').textContent=$('plate').value.trim()?`✓ ${$('plate').value.trim()}`:'Niet gevonden';
+ $('foundRdw').textContent=$('brand').value.trim()?`✓ ${$('brand').value} ${$('model').value}`.trim():'Nog niet';
 }
 
 
@@ -159,7 +159,7 @@ async function autoBenchmarks(){
     }
     if(!found.length)throw new Error('geen bruikbare resultaten gevonden');
     fillBenchmarkRows(found);
-    $('benchmarkStatus').textContent=`${found.length} mogelijke benchmarks gevonden. Controleer ze altijd handmatig.`;
+    $('benchmarkStatus').textContent=`${found.length} mogelijke zoekresultaten gevonden. Niet als koerslijst beschouwd: controleer prijs, bouwjaar, km en uitvoering handmatig.`;
   }catch(e){
     $('benchmarkStatus').textContent='Automatisch zoeken lukte niet. Benchmarks kunnen handmatig worden ingevuld.';
   }

@@ -1,0 +1,12 @@
+index.html: 034c849b55f7
+app.css: 6ad4b211b1e5
+app.js: a6a3e1cf337c
+parser.js: 6886c4cbcd09
+rdw.js: 215102cf30d7
+utils.js: 667989906a2c
+valuation.js: d58a8b80d0f3
+service-worker.js: 4aabce9b750a
+manifest.webmanifest: c1ea7c561fa6
+icon-192.png: d7785e79bdb4
+icon-512.png: 361ce5295fed
+README.md: aff132c2d9c5

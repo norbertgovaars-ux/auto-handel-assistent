@@ -1,21 +1,22 @@
-AUTO HANDEL ASSISTENT 3.0
+AUTO HANDEL ASSISTENT 3.1 — COMPLETE RELEASE
 
-Upload ALLE bestanden rechtstreeks naar de hoofdmap van GitHub en Commit changes.
+Upload ALLE bestanden uit deze ZIP rechtstreeks naar de hoofdmap van GitHub.
 
-Belangrijk:
-- app.js
-- parser.js
-- valuation.js
-- rdw.js
-- utils.js
-- app.css
-- index.html
-- manifest.webmanifest
-- service-worker.js
-- icon-192.png
-- icon-512.png
+Vervang:
+index.html
+app.css
+app.js
+parser.js
+rdw.js
+utils.js
+valuation.js
+service-worker.js
+manifest.webmanifest
+icon-192.png
+icon-512.png
+README.md
 
-Na deployment moet bovenaan staan: Auto Handel Assistent 3.0.
+Daarna Commit changes.
+Na deployment moet bovenaan staan: Auto Handel Assistent 3.1.
 
-Voor de Android deeloptie is opnieuw installeren normaal NIET nodig als 2.2 al als deel-app werkt.
-Als Auto Handel niet meer in Delen staat: app eenmalig verwijderen en opnieuw installeren via Chrome.
+Je hoeft de Android-app niet opnieuw te installeren als 'Auto Handel' al in het deelmenu staat.
